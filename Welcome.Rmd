@@ -18,6 +18,11 @@ When you click the **Knit** button a document will be generated that includes bo
 
 ```{r cars}
 summary(cars)
+
+library(kableExtra)
+
+dt <- mtcars[1:5, 1:6]
+kable(dt, "latex", booktabs = T)
 ```
 
 ## Including Plots

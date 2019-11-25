@@ -22,7 +22,10 @@ summary(cars)
 library(kableExtra)
 
 dt <- mtcars[1:5, 1:6]
-kable(dt, "latex", booktabs = T)
+
+
+kable(dt, "latex", booktabs = T) %>% 
+  kable_styling(latex_options = "striped")
 ```
 
 ## Including Plots

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.7.29)  25 NOV 2019 17:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.7.29)  25 NOV 2019 17:08
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1135,45 +1135,45 @@ Package xcolor Warning: Incompatible color definition on input line 164.
 Package xcolor Warning: Incompatible color definition on input line 176.
 
 
-Package xcolor Warning: Incompatible color definition on input line 183.
+Package xcolor Warning: Incompatible color definition on input line 186.
 
 
-Package xcolor Warning: Incompatible color definition on input line 183.
+Package xcolor Warning: Incompatible color definition on input line 186.
 
 <Welcome_files/figure-latex/pressure-1.pdf, id=13, 434.62375pt x 250.9375pt>
 File: Welcome_files/figure-latex/pressure-1.pdf Graphic file (type pdf)
 <use Welcome_files/figure-latex/pressure-1.pdf>
 Package pdftex.def Info: Welcome_files/figure-latex/pressure-1.pdf  used on inp
-ut line 202.
+ut line 208.
 (pdftex.def)             Requested size: 434.64256pt x 250.94835pt.
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 208.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 214.
 [2 <./Welcome_files/figure-latex/pressure-1.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 208.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 214.
 (./Welcome.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 208.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 208.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 214.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 214.
 Package rerunfilecheck Info: File `Welcome.out' has not changed.
 (rerunfilecheck)             Checksum: 375CCB0C7839B6239EC131899440DF49;219.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 208.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 214.
  ) 
 Here is how much of TeX's memory you used:
- 14618 strings out of 492982
- 209292 string characters out of 6134896
- 327187 words of memory out of 5000000
- 17913 multiletter control sequences out of 15000+600000
+ 14620 strings out of 492982
+ 209314 string characters out of 6134896
+ 328187 words of memory out of 5000000
+ 17915 multiletter control sequences out of 15000+600000
  37598 words of font info for 50 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 34i,7n,38p,232b,337s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,9n,38p,232b,337s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}</usr/share/texmf/fonts/type1/
 public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/s
 hare/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public
 /lm/lmr17.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/te
 xmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lm
 tt10.pfb>
-Output written on Welcome.pdf (2 pages, 173065 bytes).
+Output written on Welcome.pdf (2 pages, 174891 bytes).
 PDF statistics:
  68 PDF objects out of 1000 (max. 8388607)
  53 compressed objects within 1 object stream

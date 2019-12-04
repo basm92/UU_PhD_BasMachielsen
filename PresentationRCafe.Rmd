@@ -1,0 +1,532 @@
+---
+title: "Descriptive Statistics and Regression Tables in Word and LaTeX"
+author: | 
+  | Bas Machielsen
+  | a.h.machielsen@uu.nl 
+  | [github.com/basm92](https://github.com/basm92)
+date: \today
+institute: Utrecht University - R Cafe
+fontsize: 10pt
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{xcolor}
+output:
+    beamer_presentation: 
+      keep_tex: yes
+      theme: AnnArbor
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+if (!require(tidyverse)) {install.packages('tidyverse', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(tidyverse)
+
+if (!require(sjPlot)) {install.packages('sjPlot', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(sjPlot)
+
+if (!require(sjmisc)) {install.packages('sjmisc', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(sjmisc)
+
+if (!require(kableExtra)) {install.packages('kableExtra', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(kableExtra)
+
+if (!require(xtable)) {install.packages('xtable', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(xtable)
+options(xtable.comment = FALSE)
+
+if (!require(AER)) {install.packages('AER', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(AER)
+
+if (!require(stargazer)) {install.packages('stargazer', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(stargazer)
+
+library(Hmisc)
+library(lattice)
+library(Formula)
+
+```
+
+## Possibilities and packages
+A small disclaimer.. 
+
+- There are various possibilities and packages in R to make tidy, well-formatted tables 
+- I do not claim to know, let alone be familiar with, even a tiny fraction of them
+- I do know how to use a few particular ones, most notable `sjPlot` and `stargazer`, which are among the most popular and most-used packages for this purpose, whose features I will demonstrate throughout this lecture
+- I will also show a couple of alternatives to circumvent the shortcomings of these packages. 
+- Stargazer has a vignette available [**here**](https://cran.r-project.org/web/packages/stargazer/vignettes/stargazer.pdf), which is an excellent tutorial in its own right, and sjPlot  has a few available tutorials [**here**](http://www.strengejacke.de/sjPlot/articles/) 
+	
+
+## Why use them?
+- What is stargazer? 
+		
+> stargazer is an R package that creates LATEX code, HTML code and ASCII text for well-formatted regression tables, with multiple models side-by-side, as well as for summary statistics tables, data frames, vectors and matrices.
+
+- Why should you use stargazer? From the vignette: 
+
+> Compared to available alternatives, stargazer excels in at least three respects: its ease of use, the large number of models it supports, and its beautiful aesthetics. These advantages have made it the	R-to-LATEX package of choice for many satisfied users at research and teaching institutions around	the world.
+
+## Why use them?
+
+- What is sjPlot?
+
+> [a] collection of plotting and table output functions for data visualization. Results of various statistical analyses (that are commonly used in social sciences) can be visualized using this package, including simple and cross tabulated frequencies, histograms, box plots, (generalized) linear models, mixed effects models, PCA and correlation matrices, cluster analyses, scatter plots, Likert scales, effects plots of interaction terms in regression models, constructing index or score variables and much more.
+
+- sjPlot has way more features than stargazer. We will not focus on these features in this session. 
+
+## Descriptive statistics - stargazer 
+
+We will start out by using stargazer in \LaTeX format. The advantage of a \LaTeX format is that you can use it right away in a presentation, such as this one! 
+
+```{r, echo = TRUE, results = FALSE}
+#Load an example dataset
+#the data comes from Hamermesh and Parker (2005)
+#about impact of beauty on teacher evaluations
+
+data(TeachingRatings)
+
+stargazer(TeachingRatings, 
+          header=FALSE, type='latex',
+          summary.stat = c("mean","min","max","n"), 
+          font.size = "footnotesize")
+
+```
+
+## Descriptive statistics - stargazer
+
+- This is the output you get: 
+
+```{r, results =  'asis'}
+stargazer(TeachingRatings, 
+          header=FALSE, type='latex',
+          summary.stat = c("n", "mean","min","max"), 
+          font.size = "footnotesize")
+```
+
+## Descriptive statistics - stargazer
+
+- The option list of stargazer is very extensive. For example, the same output can be achieved by omitting several (non-default) statistics:
+
+```{r, echo = TRUE, results = FALSE}
+#Load an example dataset
+#the data comes from a Hamermesh and Parker (2005)
+#about impact of beauty on teacher evaluations
+
+data(TeachingRatings)
+
+stargazer(TeachingRatings, 
+          header=FALSE, type='latex',
+          omit.summary.stat = c("sd", "p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Hello, R Cafe!"
+          )
+```
+
+
+## Descriptive statistics - stargazer
+
+The output you get is the following:
+
+```{r, results = 'asis'}
+stargazer(TeachingRatings, 
+          header=FALSE, type='latex',
+          omit.summary.stat = c("sd", "p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Hello, R Cafe!"
+          )
+```
+
+Please refer to the stargazer vignette [**here**](https://cran.r-project.org/web/packages/stargazer/stargazer.pdf#stargazer_summary_stat_code_list) to look for the specific summary statistic codes. 
+
+## Descriptive statistics - stargazer
+- Hopefully the advantages have been clear. The syntax is amazingly simple and the number of options is huge (Have a look at ```?stargazer```). It automatically filters NA observations. It is also easy to integrate these tables into (R)Markdown and \LaTeX documents. 
+
+Now, a few disadvantages.. 
+
+- You have to specify the option ```header = FALSE``` in order to bypass the default output which contains the credit of the package creator (try it!)
+
+- stargazer automatically extracts the variables which are suitable for descriptive statistics out of your dataset. If you want a summarise of, e.g., factor variables, you have to convert them. 
+
+## Descriptive statistics - stargazer in Word
+
+- Stargazer also supports exporting tables to Microsoft Word. 
+
+- It is possible to export tables in one file, and to overwrite or append these documents. (This is also supported for .tex files.)
+
+\footnotesize
+```{r, echo = TRUE, results = FALSE}
+#Let's try to extract another dataset, CPS1988,
+#about the determinants of wages
+#and summarise the descriptives in a Word table.
+data(CPS1988)
+
+stargazer(CPS1988[CPS1988$ethnicity == "cauc",],
+          header=FALSE, type='latex',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Caucasian")
+
+stargazer(CPS1988[CPS1988$ethnicity == "afam",],
+          header=FALSE, type='latex',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Caucasian")
+
+```
+\normalsize 
+
+## Descriptive statistics - stargazer in Word
+
+This is the output of the two tables: 
+
+```{r, results = 'asis'}
+stargazer(CPS1988[CPS1988$ethnicity == "cauc",],
+          header=FALSE, type='latex',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Caucasian")
+
+stargazer(CPS1988[CPS1988$ethnicity == "afam",],
+          header=FALSE, type='latex',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "African American")
+```
+
+## Descriptive statistics - stargazer in Word
+
+- Exporting tables to Word is possible "natively" in 2 ways:
+
+    1. First, output to .html, and copy the resulting tables from your web browser to Word
+    2. Second, output each separate stargazer command to different .doc documents
+    
+- Stargazer does not yet support appending existing documents with new tables, and automatically overwrites tables. 
+
+Syntax:
+
+```{r, include = FALSE}
+stargazer(CPS1988[CPS1988$ethnicity == "cauc",],
+          header=FALSE, type='html',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Caucasian", out = "test1.doc"
+          )
+
+stargazer(CPS1988[CPS1988$ethnicity == "afam",],
+          header=FALSE, type='html',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "African American", out = "test2.doc"
+          )
+```
+
+\footnotesize
+```{r, echo = TRUE, eval = FALSE}
+stargazer(CPS1988[CPS1988$ethnicity == "cauc",],
+            header=FALSE, omit.summary.stat = c("p25", "p75"),
+            font.size = "footnotesize",
+            title = "Caucasian",
+            type='html', out = "test1.doc") #These 2 arguments are the only 2 you 
+                                            #need
+
+stargazer(CPS1988[CPS1988$ethnicity == "afam",],
+          header=FALSE, omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "African American",
+          type='html', out = "test2.doc") #These 2 arguments are the only 2 you 
+                                          #need
+```
+\normalsize
+
+## Descriptive statistics - stargazer in Word
+
+- However, if you want to append, you can use a little bit of R's power in the following way:
+
+\footnotesize
+```{r, echo = TRUE}
+#Step 1, make a list for all the 
+#partitions of the data, include names
+models <-  list(
+    Caucasian = CPS1988[CPS1988$ethnicity == "cauc",],
+    AfroAmerican = CPS1988[CPS1988$ethnicity == "afam",],
+    Northeast = CPS1988[CPS1988$region == "northeast",],
+    Midwest = CPS1988[CPS1988$region == "midwest",],
+    South = CPS1988[CPS1988$region == "south",],
+    West = CPS1988[CPS1988$region == "west",]
+)
+
+#Step 2, for loop for every element in the list you want to print
+for (m in 1:length(models)){
+  a = vector(length = length(models))
+  a[m] = (names(models[m]))
+  s = capture.output(stargazer(models[m], type = "html", title = a[m]))
+  cat(paste(s,"\n"),file="tables.doc",append=TRUE)
+  cat(" ",file="tables.doc",append=TRUE)
+}
+
+```
+\normalsize
+
+## Descriptive statistics - stargazer in Word
+
+- One only has to put all the partitions in a list, change the filename, and change the desired descriptive statistics accordingly. 
+
+- Let us now look at the [**document in which all tables are**](tables.doc)! This is very useful when organizing all tables and/or graphs for a paper.
+
+## Descriptives in sjPlot
+
+- It is also possible to use `sjPlot` for descriptive statistics. 
+\footnotesize
+```{r, echo = TRUE, eval = FALSE, warning = FALSE, results = 'asis'}
+#Let's use a dataset of determinants of GDP Growth
+data(GrowthDJ)
+descriptives <- descr(GrowthDJ, show = 
+                        c("type","label","n","mean","sd"))
+
+kable(descriptives, caption = "Descriptive Statistics", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+\normalsize
+
+## Descriptives in sjPlot
+
+```{r, echo = FALSE, warning = FALSE, results = 'asis' }
+#Let's use a dataset of determinants of GDP Growth
+data(GrowthDJ)
+descriptives <- descr(GrowthDJ, show = 
+                        c("type","label","n","mean","sd"))
+
+kable(descriptives, caption = "Descriptive Statistics", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Descriptives in sjPlot
+
+- `sjPlot` has a lot of advantages. It automatically omits NA observations, and transforms factor variables to numeric variables (although this is dangerous!). 
+- It can also make contingency tables, which stargazer cannot (readily) do:
+
+```{r, echo = TRUE, warning = FALSE, results = FALSE}
+sjt.xtab(GrowthDJ$oil, GrowthDJ$oecd, 
+         use.viewer = TRUE, file = "contingency.doc")
+```
+
+![Figure](contingency.png)
+
+## Correlation tables
+
+- Both `sjPlot` and `stargazer` can make correlation tables. First, let's try stargazer:
+
+```{r, eval = TRUE, echo = TRUE, warning = FALSE, results = 'asis' }
+data(GrowthDJ)
+cormat <- select_if(GrowthDJ, is.numeric)
+```
+
+```{r, eval = FALSE, echo = TRUE, warning = FALSE, results = 'asis' }
+stargazer(cor(cormat[5:7], 
+              use = c('pairwise.complete.obs')),
+          header=FALSE, type='latex',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Correlation Matrix")
+```
+
+- Stargazer has no native stars, a feature which sjPlot does have. 
+
+## Correlation tables - stargazer
+
+- This is the output: 
+
+```{r, results = 'asis'}
+stargazer(cor(cormat[5:7], 
+              use = c('pairwise.complete.obs')),
+          header=FALSE, type='latex',
+          omit.summary.stat = c("p25", "p75"), 
+          font.size = "footnotesize",
+          title = "Correlation Matrix")
+```
+
+- \LaTeX-users: `stargazer` cannot correctly handle negative numbers when generating the \LaTeX code, causing some compilers to have difficulties. 
+- Word and \LaTeX-users: you can also use stargazer's `out`-option to export the tables to Word and .tex.  
+
+## Correlation tables 
+
+- I can also use the package `xtable`, which surpasses the problem of stargazer but creates otherwise identical tables (see .Rmd-file for the code). 
+
+```{r, results = 'asis'}
+xtable(cor(cormat[1:6], 
+           use = c('pairwise.complete.obs')),
+          caption = "Correlation Matrix",
+          digits =3)
+```
+
+- `xtable` also supports output in \LaTeX or html format. 
+
+## Correlation tables - sjPlot
+
+- `sjPlot` has a range of functions to visualize correlations. For example:
+
+```{r, echo = TRUE, results = FALSE}
+sjt.corr(cormat[1:6], file = "cortab.doc")
+```
+
+![Correlation table](cortab.png)
+
+## Correlation tables - sjPlot
+- Another example (this uses `ggplot2`)
+\footnotesize
+```{r, echo = TRUE, warning = FALSE, message = FALSE, results = FALSE, fig.height = 2.5, fig.width = 4}
+sjp.corr(cormat[1:5], title = "Correlation Matrix")
+```
+\normalsize
+
+
+## Correlation tables - with stars 
+- If you would like a correlation function that prints correlation tables with stars indicating significance, have a look [**here**](http://myowelt.blogspot.com/2008/04/beautiful-correlation-tables-in-r.html)
+
+- Example: 
+
+```{r, echo = FALSE}
+corstarsl <- function(x){
+require(Hmisc)
+x <- as.matrix(x)
+R <- rcorr(x)$r
+p <- rcorr(x)$P
+
+## define notions for significance levels; spacing is important.
+mystars <- ifelse(p < .001, "***", ifelse(p < .01, "** ", ifelse(p < .05, "* ", " ")))
+
+## trunctuate the matrix that holds the correlations to two decimal
+R <- format(round(cbind(rep(-1.11, ncol(x)), R), 2))[,-1]
+
+## build a new matrix that includes the correlations with their apropriate stars
+Rnew <- matrix(paste(R, mystars, sep=""), ncol=ncol(x))
+diag(Rnew) <- paste(diag(R), " ", sep="")
+rownames(Rnew) <- colnames(x)
+colnames(Rnew) <- paste(colnames(x), "", sep="")
+
+## remove upper triangle
+Rnew <- as.matrix(Rnew)
+Rnew[upper.tri(Rnew, diag = TRUE)] <- ""
+Rnew <- as.data.frame(Rnew)
+
+## remove last column and return the matrix (which is now a data frame)
+Rnew <- cbind(Rnew[1:length(Rnew)-1])
+return(Rnew)
+}
+```
+
+```{r, echo = TRUE, message = FALSE, warning = FALSE, results = 'asis'}
+xtable(corstarsl(cormat[,1:6]), 
+       caption = "Correlation Table with Stars")
+```
+
+## Regression tables 
+
+- Now, finally, we can use stargazer's principal application, regression tables.
+
+- Everything is _very_ straightforward: just look at this: 
+\footnotesize
+```{r, echo = TRUE, results = FALSE}
+data(TeachingRatings) 
+model1 <- lm(data = TeachingRatings, 
+             eval ~ beauty)
+model2 <- lm(data =TeachingRatings, 
+             eval ~ beauty + age)
+model3 <- lm(data =TeachingRatings, 
+             eval ~ beauty + age + gender)
+model4 <- lm(data =TeachingRatings, 
+             eval ~ beauty + age + gender + students)
+
+stargazer(model1, model2, model3, model4,
+          header = FALSE,
+          caption = FALSE,
+          font.size = "footnotesize",
+          column.sep.width = "0pt",
+          omit.stat = c("ll", "F","ser"))
+```
+\normalsize
+
+## Regression tables 
+
+\def\arraystretch{0.7}
+```{r, echo = FALSE, results = 'asis'}
+stargazer(model1, model2, model3, model4,
+          header = FALSE,
+          caption = FALSE,
+          font.size = "footnotesize",
+          column.sep.width = "0pt",
+          omit.stat = c("ll", "F","ser"))
+```
+
+## Regression tables
+
+- `stargazer` can also change styles to fit standard formats required by journals in the social sciences, and automatically incorporates different dependent variables.
+
+\def\arraystretch{0.7}
+```{r, echo = FALSE, results = 'asis'}
+model3 <- lm(data = TeachingRatings, beauty ~ eval + tenure)
+model4 <- lm(data = TeachingRatings, beauty ~ age)
+stargazer(model1, model2, model3,model4,
+          header = FALSE, caption = "",
+          font.size = "scriptsize",
+          column.sep.width = "0pt",
+          omit.stat = c("ll", "F","ser"))
+```
+
+## Standard errors
+
+The issue of standard errors is unrelated to the packages that are use to _report_ your data. The way to go about this is to change the standard errors in the model list to the appropriate standard errors calculated by another package, in this case, `sandwich`. 
+
+```{r, echo = TRUE, eval = FALSE}
+model1 <- lm(data = GrowthDJ, 
+             gdpgrowth ~ oil + inter + invest + school)
+
+library(sandwich)
+
+heterosk_vcov <- vcovHC(model1, type = "HC3")
+h_ac_vcov <- vcovHAC(model1)
+
+stargazer(model1, 
+          coeftest(model1, vcov = heterosk_vcov), 
+          coeftest(model1, vcov = vcovHAC(model1) ))
+```
+
+## Standard errors
+
+\def\arraystretch{0.7}
+```{r, echo = FALSE, results = 'asis'}
+model1 <- lm(data = GrowthDJ, gdpgrowth ~ oil + inter + oecd + invest + school)
+
+library(sandwich)
+
+heterosk_vcov <- vcovHC(model1, type = "HC3")
+h_ac_vcov <- vcovHAC(model1)
+
+stargazer(model1, coeftest(model1, vcov = heterosk_vcov), coeftest(model1, vcov = vcovHAC(model1)), header = FALSE,
+          font.size = "scriptsize",
+          column.sep.width = "0pt",
+          omit.stat = c("ll", "F","ser"))
+```
+
+## Conclusion
+
+- Stargazer and sjPlot are two packages that can save you a lot of trouble (as long as you are not looking for correlation tables with stars). 
+
+- Supplementary packages, such as xtable and hmisc could also help you in reporting the most common statistical analyses. 
+
+- Thank you for your attention! Suggestions? a.h.machielsen@uu.nl! 

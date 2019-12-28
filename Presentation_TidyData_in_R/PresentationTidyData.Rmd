@@ -1,0 +1,288 @@
+---
+title: "Tidying Data in R"
+author: "Bas Machielsen"
+date: \today
+institute: Utrecht University - R Cafe
+fontsize: 10pt
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{xcolor}
+output:
+    beamer_presentation: 
+      keep_tex: yes
+      theme: Madrid
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+if (!require(tidyverse)) {install.packages('tidyverse', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(tidyverse)
+
+if (!require(stargazer)) {install.packages('stargazer', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(stargazer)
+
+if (!require(kableExtra)) {install.packages('kableExtra', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(kableExtra)
+
+if (!require(RCurl)) {install.packages('RCurl', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(RCurl)
+
+if (!require(xtable)) {install.packages('xtable', ask = FALSE, checkBuilt = TRUE, type = "binary")}
+library(xtable)
+options(xtable.comment = FALSE)
+
+```
+
+## What is tidy data?
+
+- In order for your data to be ready for analysis, it needs to be **tidy**. 
+
+- Tidy data is defined as: 
+
+> data sets that are arranged such that each variable is a column and each observation (or case) is a row.
+
+- I will attempt to explain how to put this principle in practice using a set of packages called the **Tidyverse**, but more specifically, the `tidyr` package. 
+
+- You can download the .Rmd and .csv files from my github, and follow along! 
+
+## What is (un)tidy data?
+
+> All tidy data are similar to each other. All untidy data are untidy in their own way.
+
+- Although tidy data shares the properties mentioned in the previous slide, untidy data refers (broadly speaking) to unstructured data. 
+
+- An example (from [www.tidyverse.org](www.tidyverse.org)):
+
+```{r}
+preg <- read.csv("https://raw.githubusercontent.com/tidyverse/tidyr/master/vignettes/preg.csv")
+
+kable(preg, caption = "This is what an untidy dataset looks like", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+
+## An example of untidy data
+
+- Is each obervation in a row?
+
+- Is each variable in a column?
+
+- What are the variables here? 
+
+```{r}
+preg2 <- read.csv("https://raw.githubusercontent.com/tidyverse/tidyr/master/vignettes/preg2.csv")
+
+kable(preg2, caption = "This is also what an untidy dataset looks like", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Example: from untidy to tidy data
+
+- The variables are (i) the treatment, (ii) the subject, and (iii) the 'score' corresponding to each subject-treatment observations. 
+
+```{r, echo = TRUE, include = TRUE, eval = FALSE}
+preg %>%
+    pivot_longer(treatmenta:treatmentb, 
+                 names_to = "treatment", values_to = "score") %>% 
+    mutate(treatment = gsub("treatment", "", treatment)) %>%
+    arrange(name, treatment) %>%
+    kable(caption = "Test", booktabs = TRUE, 
+          row.names = FALSE) %>%
+    kable_styling(latex_options = "striped")
+```
+
+## Example: from untidy to tidy data
+
+- The former chunk of code transforms the data in the first table to the following table: 
+
+```{r}
+preg %>%
+    pivot_longer(treatmenta:treatmentb, 
+                 names_to = "treatment", values_to = "score") %>% 
+    mutate(treatment = gsub("treatment", "", treatment)) %>%
+    arrange(name, treatment) %>%
+    kable(caption = "This is tidy data", 
+          booktabs = TRUE, 
+          row.names = FALSE) %>%
+    kable_styling(latex_options = "striped")
+```
+
+
+## Transforming the data
+
+- The key command in the former chunk of code is `pivot_longer`. With the arguements data, columns, names_to and values_to. 
+
+- All the other functions are essentially layout changes, not fundamental transformations. 
+
+- The command pivot_longer basically transforms the dataset from: 
+
+```{r}
+kable(preg, caption = "This is what an untidy dataset looks like", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Transforming the data
+
+- to : 
+
+```{r, echo = TRUE}
+pivot_longer(data = preg, cols = 2:3, names_to = "treatment", 
+             values_to = "score") %>%
+    kable(caption = "This is what a tidy dataset looks like", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Contents 
+
+- The best way to see how tidy data works is by using examples. In this lecture, I will demonstrate extensively how to create tidy data that is ready for analysis using two examples.
+
+- First, I will show how to combine and tidy data on economic development from the World Bank.
+
+- Afterwards, I show how to combine and tidy data from ORBIS, a commercial database. 
+
+- On the fly, I will demonstrate how simple it is to analyze or create graphs with tidy data. 
+
+- Finally, I will use other examples to show how to tidy more messy data, inspired by examples from the [**tidyverse website**](https://tidyr.tidyverse.org/reference/pivot_longer.html)
+
+## World Bank Dataset
+
+- Let us now download some data from the World Bank database. I extract the 55 basic World Development Indicators from [**here**](https://databank.worldbank.org/source/world-development-indicators/) for 20 countries. 
+
+- Importing the data.. 
+
+```{r, echo = TRUE, message = FALSE, warning = FALSE}
+worldbank <- read_csv("wb.csv")
+
+dim(worldbank)
+```
+
+- The data has 1105 observations and 14 variables. That is not at all what we wanted. What do the data look like?
+
+## World Bank Dataset
+
+```{r, echo = TRUE, message = FALSE, warning = FALSE}
+kable(worldbank[1:4,c(1,2,4,5)], 
+      caption = "Work Bank Data - Untidy!", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+- Very untidy dataset! NA observations are entered as `..`, and variable names require an extensive definition before you know what they mean. 
+
+- Furthermore, years are not notated straightforwardly, and the data violates the tidy data principles. 
+
+## What to do?
+
+- First, let us try to save the variable names and series code to another dataset (step 1), and delete the names from the worldbank dataset (step 2). 
+
+```{r, echo = TRUE}
+#Step 1
+wbnames <- cbind(unique(worldbank[,3]),unique(worldbank[,4])) %>%
+    na.omit()
+
+#Step 2
+worldbank <- worldbank[1:1100,-3]
+```
+
+## Almost there..
+
+- Now, let's try to unpivot the columns containing the years.. 
+
+
+```{r, echo = TRUE, results = FALSE}
+worldbank <- pivot_longer(worldbank, 4:13, 
+             names_to = "years", 
+             values_to = "value")
+```
+
+- This is what the data looks like right now. 
+
+```{r}
+kable(worldbank[1:4,2:5], 
+      caption = "The data then looks like this.", 
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+
+## Final steps
+
+- Let's now clean the "years" variable (step 1), set the `..` observations to NA (step 2), and "widen" the data so that every separate indicator gets a column (step 3). 
+
+- Step 3 is done using the `pivot_wider` command: it widens the data and shortens the number of observations, because it transfers information from rows to columns. 
+
+```{r, echo = TRUE}
+#Step 1
+worldbank <- worldbank %>%
+    mutate(years = substring(years, 1, 4))
+
+#Step 2
+worldbank$value[worldbank$value == ".."] <- NA
+
+#Step 3
+worldbank <- pivot_wider(data = worldbank,
+                         names_from = `Series Code`,
+                         values_from = `value`)
+```
+
+
+## Done! 
+
+- `pivot_wider`, takes three arguments: the data, from which column it should take the new column names (names_from), and from which column it should take the values belonging to the corresonding cels (values_from). 
+
+- This is what it looks like! 
+
+```{r}
+kable(worldbank[1:4,1:5], caption = "Tidy Data",
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+
+```
+
+## Some analysis
+
+- Suppose I want to know the military expenditures as a percentage of GDP `r wbnames[30,2]` for each country in the dataset in 2015. 
+
+- I can use the `wbnames` information we've saved to add labels to the data. 
+
+```{r, echo = TRUE, include = TRUE, eval = FALSE}
+worldbank %>%
+    filter(years == "2015") %>%
+    ggplot(aes(x = `Country Code`, y = `MS.MIL.XPND.GD.ZS`)) + 
+    geom_col() + 
+    labs(y = as.character(wbnames[match("MS.MIL.XPND.GD.ZS",
+                                        wbnames[,2]),1])) +
+    theme(axis.text.y =element_blank())
+
+```
+
+## Some analysis
+
+```{r, echo = FALSE, fig.height = 2.5, fig.width = 6}
+worldbank %>%
+    filter(years == "2015") %>%
+    ggplot(aes(x = `Country Code`, y = `MS.MIL.XPND.GD.ZS`)) + 
+    geom_col() + 
+    labs(y = as.character(wbnames[match("MS.MIL.XPND.GD.ZS",
+                                        wbnames[,2]),1])) +
+    theme(axis.text.y =element_blank())
+
+```
+
+

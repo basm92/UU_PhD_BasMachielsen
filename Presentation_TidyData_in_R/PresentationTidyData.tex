@@ -151,7 +151,7 @@
 \title{Tidying Data in R}
 \author{Bas Machielsen}
 \providecommand{\institute}[1]{}
-\institute{Utrecht University - R Cafe}
+\institute{Utrecht University}
 \date{\today}
 
 \begin{document}
@@ -176,11 +176,11 @@ observation (or case) is a row.
 \begin{itemize}
 \item
   I will attempt to explain how to put this principle in practice using
-  a set of packages called the \textbf{Tidyverse}, but more
-  specifically, the \texttt{tidyr} package.
+  a set of packages called the \textbf{tidyverse}, but strictly
+  speaking, only the \texttt{tidyr} package is required.
 \item
-  You can download the .Rmd and .csv files from my github, and follow
-  along!
+  You can download the .Rmd and .csv files from my
+  \href{www.github.com/basm92}{\textbf{github page}}, and follow along!
 \end{itemize}
 
 \end{frame}
@@ -385,7 +385,7 @@ Mary Johnson & treatmentb & 7\\
   First, I will show how to combine and tidy data on economic
   development from the World Bank.
 \item
-  Afterwards, I show how to combine and tidy data from ORBIS, a
+  Afterwards, I show how to combine and tidy data from Amadeus, a
   commercial database.
 \item
   On the fly, I will demonstrate how simple it is to analyze or create
@@ -601,8 +601,8 @@ Argentina & ARG & 2012 & 63.567 & 5.7817442068501\\
 
 \end{frame}
 
-\begin{frame}[fragile]{Some analysis}
-\protect\hypertarget{some-analysis}{}
+\begin{frame}[fragile]{Military Spending}
+\protect\hypertarget{military-spending}{}
 
 \begin{itemize}
 \item
@@ -627,10 +627,301 @@ Argentina & ARG & 2012 & 63.567 & 5.7817442068501\\
 
 \end{frame}
 
-\begin{frame}{Some analysis}
-\protect\hypertarget{some-analysis-1}{}
+\begin{frame}{Military Spending}
+\protect\hypertarget{military-spending-1}{}
 
 \includegraphics{PresentationTidyData_files/figure-beamer/unnamed-chunk-15-1.pdf}
+
+\end{frame}
+
+\begin{frame}[fragile]{Fertility Rate}
+\protect\hypertarget{fertility-rate}{}
+
+\begin{itemize}
+\tightlist
+\item
+  Suppose now you want to track the evolution of the fertility rate over
+  the last 10 years of some countries in the dataset.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{worldbank }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{filter}\NormalTok{(years }\OperatorTok{<}\StringTok{ }\DecValTok{2018}\NormalTok{, }
+           \StringTok{`}\DataTypeTok{Country Code}\StringTok{`} \OperatorTok{==}\StringTok{ "CHE"} \OperatorTok{|}\StringTok{ }
+\StringTok{             `}\DataTypeTok{Country Code}\StringTok{`} \OperatorTok{==}\StringTok{ "GBR"}
+           \OperatorTok{|}\StringTok{ `}\DataTypeTok{Country Code}\StringTok{`} \OperatorTok{==}\StringTok{ "RUS"} \OperatorTok{|}\StringTok{ }
+\StringTok{             `}\DataTypeTok{Country Code}\StringTok{`} \OperatorTok{==}\StringTok{ "SAU"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{    }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ years, }\DataTypeTok{y =} \StringTok{`}\DataTypeTok{SP.DYN.TFRT.IN}\StringTok{`}\NormalTok{, }
+               \DataTypeTok{group =} \StringTok{`}\DataTypeTok{Country Code}\StringTok{`}\NormalTok{, }
+               \DataTypeTok{color =} \StringTok{`}\DataTypeTok{Country Code}\StringTok{`}\NormalTok{)) }\OperatorTok{+}\StringTok{ }
+\StringTok{    }\KeywordTok{geom_line}\NormalTok{() }\OperatorTok{+}\StringTok{ }
+\StringTok{    }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{y =} \KeywordTok{as.character}\NormalTok{(wbnames[}\KeywordTok{match}\NormalTok{(}\StringTok{"SP.DYN.TFRT.IN"}\NormalTok{,}
+\NormalTok{                                        wbnames[,}\DecValTok{2}\NormalTok{]),}\DecValTok{1}\NormalTok{])) }\OperatorTok{+}
+\StringTok{    }\KeywordTok{theme}\NormalTok{(}\DataTypeTok{axis.text.y =}\KeywordTok{element_blank}\NormalTok{(), }
+          \DataTypeTok{axis.ticks.y =} \KeywordTok{element_blank}\NormalTok{())}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Fertility Rate}
+\protect\hypertarget{fertility-rate-1}{}
+
+\includegraphics{PresentationTidyData_files/figure-beamer/unnamed-chunk-17-1.pdf}
+
+\end{frame}
+
+\begin{frame}[fragile]{Another untidy dataset..}
+\protect\hypertarget{another-untidy-dataset..}{}
+
+\begin{itemize}
+\item
+  Now, I will download some data from Amadeus, a commercial database
+  collected information about firms across the world.
+\item
+  I collect data from 2000 European companies on their financial
+  information, the number of employees, and the number of
+  directors/managers.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{amadeus <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"Amadeus_Export_1.csv"}\NormalTok{, }\DataTypeTok{fileEncoding =} \StringTok{"UCS-2LE"}\NormalTok{)}
+
+\KeywordTok{dim}\NormalTok{(amadeus)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2000   68
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}{What does the data look like?}
+\protect\hypertarget{what-does-the-data-look-like}{}
+
+\begin{itemize}
+\tightlist
+\item
+  These are some of the variables..
+\end{itemize}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-19}Variable names}
+\centering
+\begin{tabular}[t]{l}
+\toprule
+\\
+\midrule
+\rowcolor{gray!6}  Mark\\
+Company.name\\
+\rowcolor{gray!6}  City\\
+Country.ISO.code\\
+\rowcolor{gray!6}  NACE.code\\
+\addlinespace
+Cons..code\\
+\rowcolor{gray!6}  Last.year\\
+Operating.revenue..Turnover..th.EUR.2019\\
+\rowcolor{gray!6}  Operating.revenue..Turnover..th.EUR.2018\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}[fragile]{Tidying the Amadeus data}
+\protect\hypertarget{tidying-the-amadeus-data}{}
+
+\begin{itemize}
+\item
+  The data look very untidy. Column names contain variables and years,
+  and there are various superfluous columns, such as \texttt{Mark}, and
+  last year. NA observations are coded as \texttt{n.a.} but are not
+  recognized by are as such.
+\item
+  The first thing we need to do is to change the NA obs to functioning
+  NA obs, and remove some superfluous columns
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Step 1}
+\NormalTok{amadeus[amadeus }\OperatorTok{==}\StringTok{ "n.a."}\NormalTok{] <-}\StringTok{ }\OtherTok{NA}
+\NormalTok{amadeus[amadeus }\OperatorTok{==}\StringTok{ "n.s."}\NormalTok{] <-}\StringTok{ }\OtherTok{NA}
+\NormalTok{amadeus <-}\StringTok{ }\NormalTok{amadeus[,}\OperatorTok{-}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{5}\OperatorTok{:}\DecValTok{7}\NormalTok{)]}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}[fragile]{Using pivot to transform the data}
+\protect\hypertarget{using-pivot-to-transform-the-data}{}
+
+\begin{itemize}
+\tightlist
+\item
+  Next, we want to convert the data into a \textbf{long} format, using
+  \texttt{pivot\_longer}.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{amadeus <-}\StringTok{ }\NormalTok{amadeus }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate_all}\NormalTok{(as.character)}
+
+\NormalTok{amadeus <-}\StringTok{ }\KeywordTok{pivot_longer}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ amadeus,}
+                        \DataTypeTok{cols =} \DecValTok{4}\OperatorTok{:}\DecValTok{64}\NormalTok{,}
+                        \DataTypeTok{names_to =} \StringTok{"variable"}\NormalTok{,}
+                        \DataTypeTok{values_to =} \StringTok{"value"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Using pivot to transform the data}
+\protect\hypertarget{using-pivot-to-transform-the-data-1}{}
+
+\begin{itemize}
+\tightlist
+\item
+  This is what the data looks like now:
+\end{itemize}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-22}The amadeus dataset}
+\centering
+\begin{tabular}[t]{l}
+\toprule
+x\\
+\midrule
+\rowcolor{gray!6}  Company.name\\
+City\\
+\rowcolor{gray!6}  Country.ISO.code\\
+variable\\
+\rowcolor{gray!6}  value\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}[fragile]{String correction}
+\protect\hypertarget{string-correction}{}
+
+\begin{itemize}
+\tightlist
+\item
+  Now, we correct the strings using the following steps:
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#First, remove "th.EUR" from the string}
+\NormalTok{amadeus}\OperatorTok{$}\NormalTok{variable <-}\StringTok{ }\KeywordTok{sub}\NormalTok{(}\StringTok{"}\CharTok{\textbackslash{}\textbackslash{}}\StringTok{.th.EUR."}\NormalTok{,}\StringTok{""}\NormalTok{, }
+\NormalTok{                        amadeus}\OperatorTok{$}\NormalTok{variable)}
+\CommentTok{#Extract the year and put it into a new variable}
+\NormalTok{amadeus}\OperatorTok{$}\NormalTok{year <-}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(}
+  \KeywordTok{str_extract}\NormalTok{(amadeus}\OperatorTok{$}\NormalTok{variable, }\StringTok{"[0-9]+"}\NormalTok{))}
+
+\CommentTok{#Include only letters from the alphabet as variable names}
+\NormalTok{amadeus}\OperatorTok{$}\NormalTok{variable <-}\StringTok{ }\KeywordTok{sapply}\NormalTok{(}
+  \KeywordTok{str_extract_all}\NormalTok{(}
+\NormalTok{      amadeus}\OperatorTok{$}\NormalTok{variable,}\StringTok{"[aA-zZ]+"}\NormalTok{), }
+\NormalTok{  paste, }\DataTypeTok{collapse =} \StringTok{"_"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}[fragile]{Pivoting\ldots{}}
+\protect\hypertarget{pivoting}{}
+
+\begin{itemize}
+\tightlist
+\item
+  Finally, we can expand the table to adhere to the principal of one
+  obs. per row, one variable per column.
+\end{itemize}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{amadeus <-}\StringTok{ }\KeywordTok{pivot_wider}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ amadeus, }\DataTypeTok{names_from =}\NormalTok{ variable, }
+                       \DataTypeTok{values_from =}\NormalTok{ value)}
+
+\CommentTok{#There is only one problem, No. of directors/managers }
+\CommentTok{#violates the tidy data principles.}
+\NormalTok{nodir <-}\StringTok{ }\NormalTok{amadeus }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(year))}
+\NormalTok{amadeus <-}\StringTok{ }\NormalTok{amadeus }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(year))}
+
+\NormalTok{amadeus <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(amadeus[,}\DecValTok{1}\OperatorTok{:}\DecValTok{16}\NormalTok{], }
+\NormalTok{                 nodir[,}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{17}\NormalTok{)], }
+                 \DataTypeTok{by =} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{amadeus[,}\DecValTok{5}\OperatorTok{:}\DecValTok{17}\NormalTok{] <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(}\KeywordTok{sapply}\NormalTok{(amadeus[,}\DecValTok{5}\OperatorTok{:}\DecValTok{17}\NormalTok{], }
+                                    \ControlFlowTok{function}\NormalTok{(x) }\KeywordTok{as.numeric}\NormalTok{(x)))}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Done!}
+\protect\hypertarget{done-1}{}
+
+\begin{itemize}
+\tightlist
+\item
+  Now, the data looks like this:
+\end{itemize}
+
+\begin{table}
+
+\caption{\label{tab:unnamed-chunk-25}Tidy data}
+\centering
+\begin{tabular}[t]{lrr}
+\toprule
+Company.name & year & Operating\_revenue\_Turnover\\
+\midrule
+\rowcolor{gray!6}  @JCG-GMAO-CONSULTING & 2019 & 88\\
+@JCG-GMAO-CONSULTING & 2018 & 133\\
+\rowcolor{gray!6}  @JCG-GMAO-CONSULTING & 2017 & 62\\
+@JCG-GMAO-CONSULTING & 2016 & 51\\
+\rowcolor{gray!6}  @JCG-GMAO-CONSULTING & 2015 & NA\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{itemize}
+\tightlist
+\item
+  All other variables are located in the remaining columns.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Some analyses}
+\protect\hypertarget{some-analyses}{}
+
+\end{frame}
+
+\begin{frame}[fragile]{Summarizing}
+\protect\hypertarget{summarizing}{}
+
+\begin{itemize}
+\item
+  It seems that cleaning this type of data already required a fair
+  amount of work, including some programming that requires knowledge of
+  regular expressions, and some fairly non-standard transformation.
+\item
+  In the remainder, I show some other examples of \texttt{pivot\_longer}
+  and \texttt{pivot\_wider} in non-standard situations, so you do not
+  get stuck when coming across these types of data.
+\end{itemize}
 
 \end{frame}
 

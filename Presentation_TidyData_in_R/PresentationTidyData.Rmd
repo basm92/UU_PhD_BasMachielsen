@@ -2,7 +2,7 @@
 title: "Tidying Data in R"
 author: "Bas Machielsen"
 date: \today
-institute: Utrecht University - R Cafe
+institute: Utrecht University
 fontsize: 10pt
 header-includes:
   - \usepackage{booktabs}
@@ -53,9 +53,9 @@ options(xtable.comment = FALSE)
 
 > data sets that are arranged such that each variable is a column and each observation (or case) is a row.
 
-- I will attempt to explain how to put this principle in practice using a set of packages called the **Tidyverse**, but more specifically, the `tidyr` package. 
+- I will attempt to explain how to put this principle in practice using a set of packages called the **tidyverse**, but strictly speaking, only the `tidyr` package is required. 
 
-- You can download the .Rmd and .csv files from my github, and follow along! 
+- You can download the .Rmd and .csv files from my [**github page**](www.github.com/basm92), and follow along! 
 
 ## What is (un)tidy data?
 
@@ -154,7 +154,7 @@ pivot_longer(data = preg, cols = 2:3, names_to = "treatment",
 
 - First, I will show how to combine and tidy data on economic development from the World Bank.
 
-- Afterwards, I show how to combine and tidy data from ORBIS, a commercial database. 
+- Afterwards, I show how to combine and tidy data from Amadeus, a commercial database. 
 
 - On the fly, I will demonstrate how simple it is to analyze or create graphs with tidy data. 
 
@@ -255,7 +255,7 @@ kable(worldbank[1:4,1:5], caption = "Tidy Data",
 
 ```
 
-## Some analysis
+## Military Spending
 
 - Suppose I want to know the military expenditures as a percentage of GDP `r wbnames[30,2]` for each country in the dataset in 2015. 
 
@@ -272,7 +272,7 @@ worldbank %>%
 
 ```
 
-## Some analysis
+## Military Spending
 
 ```{r, echo = FALSE, fig.height = 2.5, fig.width = 6}
 worldbank %>%
@@ -284,5 +284,171 @@ worldbank %>%
     theme(axis.text.y =element_blank())
 
 ```
+
+## Fertility Rate
+
+- Suppose now you  want to track the evolution of the fertility rate over the last 10 years of some countries in the dataset. 
+
+```{r, echo = TRUE, include = TRUE, eval = FALSE, warning = FALSE}
+worldbank %>%
+    filter(years < 2018, 
+           `Country Code` == "CHE" | 
+             `Country Code` == "GBR"
+           | `Country Code` == "RUS" | 
+             `Country Code` == "SAU") %>%
+    ggplot(aes(x = years, y = `SP.DYN.TFRT.IN`, 
+               group = `Country Code`, 
+               color = `Country Code`)) + 
+    geom_line() + 
+    labs(y = as.character(wbnames[match("SP.DYN.TFRT.IN",
+                                        wbnames[,2]),1])) +
+    theme(axis.text.y =element_blank(), 
+          axis.ticks.y = element_blank())
+```
+
+## Fertility Rate
+
+```{r, echo = FALSE, warning = FALSE, fig.height = 2.5, fig.width = 6}
+worldbank %>%
+    filter(years < 2018, 
+           `Country Code` == "CHE" | 
+             `Country Code` == "GBR"
+           | `Country Code` == "RUS" | 
+             `Country Code` == "SAU") %>%
+    ggplot(aes(x = years, y = `SP.DYN.TFRT.IN`, 
+               group = `Country Code`, 
+               color = `Country Code`)) + 
+    geom_line() + 
+    labs(y = as.character(wbnames[match("SP.DYN.TFRT.IN",
+                                        wbnames[,2]),1])) +
+    theme(axis.text.y =element_blank(), 
+          axis.ticks.y = element_blank())
+```
+
+## Another untidy dataset..
+
+- Now, I will download some data from Amadeus, a commercial database collected information about firms across the world. 
+
+- I collect data from 2000 European companies on their financial information, the number of employees, and the number of directors/managers. 
+
+```{r, echo = TRUE}
+amadeus <- read.csv("Amadeus_Export_1.csv", fileEncoding = "UCS-2LE")
+
+dim(amadeus)
+```
+
+## What does the data look like?
+
+- These are some of the variables.. 
+
+```{r}
+kable(names(amadeus[1:9]), caption = "Variable names",
+      booktabs = TRUE, row.names = FALSE, col.names = "") %>%
+  kable_styling(latex_options = "striped")
+```
+
+## Tidying the Amadeus data
+
+- The data look very untidy. Column names contain variables and years, and there are various superfluous columns, such as `Mark`, and last year. NA observations are coded as `n.a.` but are not recognized by are as such. 
+
+- The first thing we need to do is to change the NA obs to functioning NA obs, and remove some superfluous columns
+
+```{r, echo = TRUE}
+#Step 1
+amadeus[amadeus == "n.a."] <- NA
+amadeus[amadeus == "n.s."] <- NA
+amadeus <- amadeus[,-c(1,5:7)]
+```
+
+## Using pivot to transform the data
+
+- Next, we want to convert the data into a __long__ format, using `pivot_longer`. 
+
+```{r, echo = TRUE}
+amadeus <- amadeus %>%
+  mutate_all(as.character)
+
+amadeus <- pivot_longer(data = amadeus,
+                        cols = 4:64,
+                        names_to = "variable",
+                        values_to = "value")
+
+```
+
+## Using pivot to transform the data
+
+- This is what the data looks like now: 
+
+```{r, echo = FALSE, warning = FALSE}
+kable(names(amadeus[1:5]), caption = "The amadeus dataset",
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## String correction
+
+- Now, we correct the strings using the following steps: 
+
+```{r, echo = TRUE, warning = FALSE}
+#First, remove "th.EUR" from the string
+amadeus$variable <- sub("\\.th.EUR.","", 
+                        amadeus$variable)
+#Extract the year and put it into a new variable
+amadeus$year <- as.numeric(
+  str_extract(amadeus$variable, "[0-9]+"))
+
+#Include only letters from the alphabet as variable names
+amadeus$variable <- sapply(
+  str_extract_all(
+      amadeus$variable,"[aA-zZ]+"), 
+  paste, collapse = "_")
+```
+
+
+## Pivoting...
+
+- Finally, we can expand the table to adhere to the principal of one obs. per row, one variable per column.
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+amadeus <- pivot_wider(data = amadeus, names_from = variable, 
+                       values_from = value)
+
+#There is only one problem, No. of directors/managers 
+#violates the tidy data principles.
+nodir <- amadeus %>%
+  filter(is.na(year))
+amadeus <- amadeus %>%
+  filter(!is.na(year))
+
+amadeus <- merge(amadeus[,1:16], 
+                 nodir[,c(1,17)], 
+                 by = 1)
+
+amadeus[,5:17] <- data.frame(sapply(amadeus[,5:17], 
+                                    function(x) as.numeric(x)))
+```
+
+## Done!
+
+- Now, the data looks like this:
+
+```{r}
+kable(amadeus[1:5,c(1,4:5)], caption = "Tidy data",
+      booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+- All other variables are located in the remaining columns.
+
+## Some analyses
+
+## Summarizing
+
+- It seems that cleaning this type of data already required a fair amount of work, including some programming that requires knowledge of regular expressions, and some fairly non-standard transformation.
+
+- In the remainder, I show some other examples of `pivot_longer` and `pivot_wider` in non-standard situations, so you do not get stuck when coming across these types of data. 
+
+
+
 
 

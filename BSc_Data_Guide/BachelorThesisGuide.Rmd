@@ -231,6 +231,7 @@ It would also be possible to match political party of the connections, and elect
 Next, we must tidy the data so that it can be used for analysis. I have other resources on how to do this, but here, I will show it again: 
 
 ```{r}
+library(tidyverse)
 Financial <- Financial[,-c(1,70)]
 Financial <- Financial %>%
   pivot_longer(3:68, names_to = "variable", values_to = "value")
@@ -248,17 +249,19 @@ Financial$variable <- sapply(
       Financial$variable,"[aA-zZ]+"), 
   paste, collapse = "_")
 
+# Convert value to numeric
+Financial$value <- as.numeric(Financial$value)
+
 #Wider format
-Financial <- Financial %>%
-  pivot_wider(names_from = variable, values_from = value)
+Final <- pivot_wider(data = Financial, names_from = variable, values_from = value, values_fn = list(value = mean))
+
 
 #Clean variable names
+library(janitor) 
 
-
+Final <- Final %>%
+  clean_names()
 ```
-
-
-
 
 
 ## Finish! - Some preliminary analysis

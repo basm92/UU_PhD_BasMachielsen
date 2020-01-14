@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ## Introduction
@@ -32,8 +32,8 @@ First, let's import the data.
 
 ```{r}
 library(readxl)
-setwd("/home/bas/")
-Amadeusdata <- read_excel("~/Downloads/Amadeus_Export_1.xlsx", sheet = "Results")
+
+Amadeusdata <- read_excel("Amadeus_Export_1.xlsx", sheet = "Results")
 
 names(Amadeusdata)
 ```
@@ -43,14 +43,15 @@ Secondly, we want to separate financial data from data about directors. Let's th
 ```{r}
 Financial <- Amadeusdata[!is.na(Amadeusdata[,2]),]
   
-#Next, I "fill in" the dataset by adding the name for each company
+# Next, I "fill in" the dataset by adding the name for each company
 library(zoo)
 Amadeusdata[,2] <- na.locf(Amadeusdata[,2])
 
-#Now, I extract only the dataset with directors
+# Now, I extract only the dataset with directors
 Directors <- Amadeusdata[,c(2,70)]
 
-#Because there are a lot of duplicates, I want to filter the dataset to unique observations
+# Because there are a lot of duplicates, I want to filter 
+# the dataset to unique observations
 Directors <- unique(Directors)
 
 #This is what the Directors data set looks like now:
@@ -73,7 +74,8 @@ I use the r package `rvest` and its read_html and related functions to scrape th
 ```{r, echo = TRUE}
 library(rvest)
 library(dplyr)
-source <- read_html("https://en.wikipedia.org/wiki/List_of_members_of_the_19th_Bundestag")
+source <- read_html(
+  "https://en.wikipedia.org/wiki/List_of_members_of_the_19th_Bundestag")
 
 
 bundestag <- as.data.frame(source %>%
@@ -121,6 +123,7 @@ I will match the two sections of names by employing a technique called string ma
 
 ```{r}
 #String-matching
+
 library(stringdist)
 source1.devices <- Directors
 source2.devices <- bundestag
@@ -128,18 +131,29 @@ source2.devices <- bundestag
 source1.devices$name<-as.character(Directors$dm_full_name)
 source2.devices$name<-as.character(bundestag$name)
  
-# It creates a matrix with the Standard Levenshtein distance between the name fields of both sources
-#dist.name<-adist(source1.devices$name,source2.devices$name, partial = TRUE, ignore.case = TRUE)
-dist.name <- stringdistmatrix(source1.devices$name, source2.devices$name, method = "osa") 
+# It creates a matrix with the Standard Levenshtein 
+# distance between the name fields of both sources
+
+# Run only one of these two, and run only once
+# dist.name<-adist(
+#       source1.devices$name,source2.devices$name, 
+#       partial = TRUE, ignore.case = TRUE)
+dist.name <- stringdistmatrix(
+  source1.devices$name, source2.devices$name,
+  method = "osa") 
 # We now take the pairs with the minimum distance
 min.name<-apply(dist.name, 1, min)
- 
+
+# Also run this chunck one time
 match.s1.s2<-NULL  
 for(i in 1:nrow(dist.name))
 {
     s2.i<-match(min.name[i],dist.name[i,])
     s1.i<-i
-    match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,s2name=source2.devices[s2.i,]$name, s1name=source1.devices[s1.i,]$name, adist=min.name[i]),match.s1.s2)
+    match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,
+                                  s2name=source2.devices[s2.i,]$name, 
+                                  s1name=source1.devices[s1.i,]$name, 
+                                  adist=min.name[i]),match.s1.s2)
 }
 # and we then can have a look at the results
 View(match.s1.s2)
@@ -164,7 +178,7 @@ matches <- matches[complete.cases(matches),]
 dim(matches)
 ```
 
-We have 120 politician-board members! That means that `r 120/708` = 17% of the Bundestag members are member of a Board of a publicly listed company, which is a quite significant amount! On the other hand, only a very small percentage, `r 120/73125` < 0.1% of the Board members is a politician, which is to be expected. 
+We have 120 politician-board combinations members! That means that `r 120/708` = 17% of the Bundestag members are member of a Board of a publicly listed company, if we assume that one politician is on one board, which is a quite significant amount! (We will later check the validity of this assumption). On the other hand, only a very small percentage, `r 120/73125` < 0.1% of the Board members is a politician, which is to be expected. 
 
 ## Matching politicians to companies
 
@@ -176,9 +190,72 @@ Now, our task is to get indicators of political connections in the `Financial` d
 
 In practice, these two variables should be very highly correlated - something we can test very soon. 
 
+To start off, let's take the matches, and see to which firm they belong:
+```{r}
+Companies <- left_join(matches, Directors, by = c("s1name" = "dm_full_name"))
+# Remove all duplicate entries
+Companies <- Companies[!duplicated(Companies[c(4,6)]),]
+
+#How many unique companies?
+length(unique(Companies$company_name))
+# We can see that 115 unique companies are connected. 
+
+#How many unique politicians?
+length(unique(Companies$s1name))
+
+# Given that 74 politicians are connected, this means some politicians have more 
+# than one board position! 
+
+# Let's now count the number of politicians per firm:
+
+number_connections <- Companies %>%
+    group_by(company_name) %>%
+    summarise(number = length(s1name))
+
+#Number of connections variable:
+Financial <- left_join(Financial, number_connections, by = 
+                         c("Company name" = "company_name"))
+Financial$number[is.na(Financial$number)] <- 0
+
+#Connections indicator (yes or no) variable:
+Financial$indic <- 0
+Financial$indic[is.element(Financial$`Company name`,
+                           number_connections$company_name)] <- 1
+
+```
+
+It would also be possible to match political party of the connections, and electoral results, to the firms to which the politicians are connected. This is not difficult, but I leave it to the reader to do this exercise. 
+
 ## Tidying the Financial dataset
 
 Next, we must tidy the data so that it can be used for analysis. I have other resources on how to do this, but here, I will show it again: 
+
+```{r}
+Financial <- Financial[,-c(1,70)]
+Financial <- Financial %>%
+  pivot_longer(3:68, names_to = "variable", values_to = "value")
+
+#Extract the year column
+Financial$year <- as.numeric(str_extract(Financial$variable, "[0-9]+"))
+
+# Remove "th.EUR" from the string
+Financial$variable <- sub("\\sth\\sEUR","", 
+                        Financial$variable)
+
+# Remove the years from the variable string
+Financial$variable <- sapply(
+  str_extract_all(
+      Financial$variable,"[aA-zZ]+"), 
+  paste, collapse = "_")
+
+#Wider format
+Financial <- Financial %>%
+  pivot_wider(names_from = variable, values_from = value)
+
+#Clean variable names
+
+
+```
 
 
 
@@ -186,6 +263,11 @@ Next, we must tidy the data so that it can be used for analysis. I have other re
 
 ## Finish! - Some preliminary analysis
 
+Now, we can reap the benefits of our work and do some analysis. For example, are firms with political connections more profitable than others?
 
+As a second example, do firms with political connections offer more employment? 
+
+
+Thank you for reading. 
 
 

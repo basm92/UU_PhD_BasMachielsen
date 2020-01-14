@@ -124,12 +124,12 @@ I will match the two sections of names by employing a technique called string ma
 ```{r}
 #String-matching
 
-library(stringdist)
-source1.devices <- Directors
-source2.devices <- bundestag
+# library(stringdist)
+# source1.devices <- Directors
+# source2.devices <- bundestag
 # To make sure we are dealing with charts
-source1.devices$name<-as.character(Directors$dm_full_name)
-source2.devices$name<-as.character(bundestag$name)
+# source1.devices$name<-as.character(Directors$dm_full_name)
+# source2.devices$name<-as.character(bundestag$name)
  
 # It creates a matrix with the Standard Levenshtein 
 # distance between the name fields of both sources
@@ -138,25 +138,29 @@ source2.devices$name<-as.character(bundestag$name)
 # dist.name<-adist(
 #       source1.devices$name,source2.devices$name, 
 #       partial = TRUE, ignore.case = TRUE)
-dist.name <- stringdistmatrix(
-  source1.devices$name, source2.devices$name,
-  method = "osa") 
+# dist.name <- stringdistmatrix(
+#  source1.devices$name, source2.devices$name,
+#  method = "osa") 
 # We now take the pairs with the minimum distance
-min.name<-apply(dist.name, 1, min)
+# min.name<-apply(dist.name, 1, min)
 
 # Also run this chunck one time
-match.s1.s2<-NULL  
-for(i in 1:nrow(dist.name))
-{
-    s2.i<-match(min.name[i],dist.name[i,])
-    s1.i<-i
-    match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,
-                                  s2name=source2.devices[s2.i,]$name, 
-                                  s1name=source1.devices[s1.i,]$name, 
-                                  adist=min.name[i]),match.s1.s2)
-}
+# match.s1.s2<-NULL  
+# for(i in 1:nrow(dist.name))
+# {
+#    s2.i<-match(min.name[i],dist.name[i,])
+#    s1.i<-i
+#    match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,
+#                                  s2name=source2.devices[s2.i,]$name, 
+#                                  s1name=source1.devices[s1.i,]$name, 
+#                                  adist=min.name[i]),match.s1.s2)
+# }
 # and we then can have a look at the results
-View(match.s1.s2)
+# View(match.s1.s2)
+# write.csv(match.s1.s2,"matches.csv")
+match.s1.s2 <- read.csv("matches.csv")
+
+
 ```
 
 After a short manual inspection of the data, we can decide the cut-off point.. 
@@ -194,7 +198,7 @@ To start off, let's take the matches, and see to which firm they belong:
 ```{r}
 Companies <- left_join(matches, Directors, by = c("s1name" = "dm_full_name"))
 # Remove all duplicate entries
-Companies <- Companies[!duplicated(Companies[c(4,6)]),]
+Companies <- Companies[!duplicated(Companies[c(4,7)]),]
 
 #How many unique companies?
 length(unique(Companies$company_name))
@@ -215,12 +219,13 @@ number_connections <- Companies %>%
 #Number of connections variable:
 Financial <- left_join(Financial, number_connections, by = 
                          c("Company name" = "company_name"))
+
 Financial$number[is.na(Financial$number)] <- 0
+
 
 #Connections indicator (yes or no) variable:
 Financial$indic <- 0
-Financial$indic[is.element(Financial$`Company name`,
-                           number_connections$company_name)] <- 1
+Financial$indic[is.element(Financial$`Company name`, number_connections$company_name)] <- 1
 
 ```
 
@@ -266,9 +271,68 @@ Final <- Final %>%
 
 ## Finish! - Some preliminary analysis
 
-Now, we can reap the benefits of our work and do some analysis. For example, are firms with political connections more profitable than others?
+Now, we can reap the benefits of our work and do some analysis. For example, are firms with political connections more leveraged than others?
 
-As a second example, do firms with political connections offer more employment? 
+
+```{r}
+# Let's make a graph comparing politically connected firms to those that are not, and compare them
+
+ggplot(data = Final, aes(x = log(long_term_debt/total_assets))) + 
+  geom_density() + 
+  facet_wrap(.~indic) + 
+  geom_vline(xintercept = median(log(Final$long_term_debt/Final$total_assets), na.rm = TRUE), 
+             linetype = "dashed") + theme_light() +
+  xlab("Distribution of Long-term Debt / Total Assets") + ylab("Density")
+```
+
+Let's now do a small regression analysis. 
+
+```{r}
+#Create several variables
+Final$lev <- Final$long_term_debt/Final$total_assets
+Final$currat <- Final$current_assets/Final$total_assets
+Final$clca <- Final$current_liabilities/Final$current_assets
+
+#Estimate the models
+model1 <- lm(data = Final, lev ~ indic)
+model2 <- lm(data = Final, lev ~ indic + currat)
+
+
+#Filter some observations out
+test <- Final[which(!is.nan(Final$clca) & !is.na(Final$clca) & !is.infinite(Final$clca)),]
+
+#Final model
+model3 <- lm(data = test, lev ~ indic + currat + clca)
+```
+
+```{r, results = 'asis'}
+library(stargazer)
+stargazer(model1, model2, model3, header = F,
+          title = "Regression Models", type = "html")
+```
+
+
+
+As a second example, are firms with political connections bigger than firms that do not?
+
+
+```{r}
+library(hrbrthemes)
+p1 <- Final %>%
+  ggplot(aes(x = log(total_assets))) + geom_density() + theme_ipsum_ps() +
+  theme(plot.title = element_text(size=12)) + labs(title = "Total Assets") + facet_grid(rows = vars(indic))
+
+p2 <- Final %>%
+  ggplot(aes(x = log(current_assets))) + geom_density() + theme_ipsum_ps() +
+  theme(plot.title = element_text(size=12)) + ggtitle("Current Assets") + facet_grid(rows = vars(indic))
+
+p3 <- Final %>%
+  ggplot(aes(x = log(tangible_fixed_assets))) + geom_density() + theme_ipsum_ps() +
+  theme(plot.title = element_text(size=12)) + ggtitle("Tangible FA") + facet_grid(rows = vars(indic))
+
+library(egg)
+grid.arrange(p1,p2,p3, ncol = 3)
+```
 
 
 Thank you for reading. 

@@ -1,0 +1,25 @@
+
+<table style="text-align:center"><caption><strong>Regression Models</strong></caption>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="3"><em>Dependent variable:</em></td></tr>
+<tr><td></td><td colspan="3" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="3">lev</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">indic</td><td>-2.940</td><td>-2.002</td><td>-2.000</td></tr>
+<tr><td style="text-align:left"></td><td>(24.732)</td><td>(24.783)</td><td>(24.796)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">currat</td><td></td><td>7.095</td><td>7.103</td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(11.977)</td><td>(12.019)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">clca</td><td></td><td></td><td>0.0001</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td>(0.023)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Constant</td><td>3.921</td><td>-0.938</td><td>-0.944</td></tr>
+<tr><td style="text-align:left"></td><td>(3.386)</td><td>(8.874)</td><td>(8.910)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>7,521</td><td>7,521</td><td>7,515</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.00000</td><td>0.00005</td><td>0.00005</td></tr>
+<tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>-0.0001</td><td>-0.0002</td><td>-0.0004</td></tr>
+<tr><td style="text-align:left">Residual Std. Error</td><td>290.906 (df = 7519)</td><td>290.919 (df = 7518)</td><td>291.054 (df = 7511)</td></tr>
+<tr><td style="text-align:left">F Statistic</td><td>0.014 (df = 1; 7519)</td><td>0.183 (df = 2; 7518)</td><td>0.121 (df = 3; 7511)</td></tr>
+<tr><td colspan="4" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="3" style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>
+</table>

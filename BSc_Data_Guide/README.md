@@ -1,0 +1,291 @@
+---
+title: "Bachelor Thesis Data Guide: Political Connections"
+author: "Bas Machielsen"
+date: "1/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+## Introduction
+
+This is a guide to data collection for BSc students in (I)BA in the academic year 2019-2020. This guide attempts to explain the process of data collection and formatting in the context of a BSc project about political connections (see e.g. Fisman, 2001; Faccio, 2006). Various aspects of data collection and formatting are covered: first, data collection from the [BvD Amadeus database](https://amadeus.bvdinfo.com/version-2019919/home.serv?product=AmadeusNeo) to get information about firm performance and firm directors. Secondly, web scraping. I look for the names of (former) politicians from public sources (in this case, [Wikipedia](www.wikipedia.org)) and attempt to the names of the directors from Amadeus. I will use string matching algorithms to match politicians to board members as accurately as possible. In this way, a measure of political connections of firms is created. Finally, I tidy the data and compute several intuitive measurements of political connections and their relationship to financial performance. 
+
+
+## Data collection from Amadeus BvD
+
+Bureau van Dijk's Amadeus database (previously ORBIS) contains accounting, stock price and miscellaneous information about firms from all over the world. The database works on the basis of requests (much like SQL databases) via an online interface. You can formulate your request in combinations of various categories, making use of location, legal form, industry, and so on. For example, you can combine several queries to find 'European Union [28] listed non-financial companies'. In this example, I will focus on German non-financial companies and their board members, and their connections to German politicians in the current Bundestag. 
+
+First, I specify the following search strategy:
+
+- Location -> Region/Country/Region in Country -> Germany
+
+- Legal form: Standardized Legal Form -> Public Limited Companies
+
+- Industry & Activities -> Industry Classifications -> NACE Rev. 2 Main Sections -> All except K and L
+
+This still leaves us with about 10,000 companies. A lot! I have also requested financial information for these companies from the book years 2017, 2018 and 2019, and a list of the names of all their directors. These will later be matched with the data on politicians collected and described in the next session. First, I will clean the Amadeus data to make it suitable for analysis, and find a nice way to facilitate string-matching. 
+
+First, let's import the data. 
+
+```{r}
+library(readxl)
+Amadeusdata <- read_excel("Amadeus_Export_1.xlsx", sheet = "Results")
+names(Amadeusdata)
+```
+
+Secondly, we want to separate financial data from data about directors. Let's therefore create two new dataframes, one containing the financial data, and the other containing a list of directors for each company. 
+
+```{r}
+Financial <- Amadeusdata[!is.na(Amadeusdata[,2]),]
+  
+# Next, I "fill in" the dataset by adding the name for each company
+library(zoo)
+Amadeusdata[,2] <- na.locf(Amadeusdata[,2])
+# Now, I extract only the dataset with directors
+Directors <- Amadeusdata[,c(2,70)]
+# Because there are a lot of duplicates, I want to filter 
+# the dataset to unique observations
+Directors <- unique(Directors)
+#This is what the Directors data set looks like now:
+library(kableExtra)
+Directors %>%
+  head() %>%
+  kable(caption = "Company - Director",booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+#I clean the names of the dataset to facilitate later programming
+library(janitor)
+Directors <- clean_names(Directors)
+```
+
+## Data collection from Wikipedia
+
+I use the r package `rvest` and its read_html and related functions to scrape the table from the following Wikipedia page: https://en.wikipedia.org/wiki/List_of_members_of_the_19th_Bundestag. I will end up with a table containing all the information, which requires a little bit of cleaning.
+
+```{r, echo = TRUE}
+library(rvest)
+library(dplyr)
+source <- read_html(
+  "https://en.wikipedia.org/wiki/List_of_members_of_the_19th_Bundestag")
+bundestag <- as.data.frame(source %>%
+  html_nodes("table.wikitable:nth-child(7)") %>%
+  html_table(fill=TRUE))
+head(bundestag)
+```
+
+I use the `janitor` package to clean the variable names, which makes it a little bit easier and helps to keep oversight of the data. 
+
+```{r}
+bundestag <- 
+  bundestag %>%
+  clean_names()
+```
+As you can see, apart from the names of all MPs, this table contains a lot of useful information, such as the electoral margin in their constituency (if applicable), their age (year of birth), and their political party and state. There are also some observations that contain links to the German wikipedia, indicated by parts of the string [de], etc., which we want to remove. I make use of [Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression) to find the common pattern in the strings which I want to replace. 
+
+```{r}
+library(stringr)
+bundestag$name <- str_replace(bundestag$name,"\\s\\[(.+)","")
+bundestag$year_of_birth <- str_replace(bundestag$year_of_birth,"\\[(.+)","")
+bundestag$constituency_for_directly_elected_members <- str_replace(bundestag$constituency_for_directly_elected_members,"\\s\\[(.+)","")
+bundestag$constituency_vote_percentage_if_applicable <- str_replace(bundestag$constituency_vote_percentage_if_applicable,"\\s%(.+)","")
+```
+
+And there we go! Now everything should be reasonably clean to match the names with the names from the directorates, which we downloaded from Amadeus. 
+
+```{r}
+bundestag %>%
+  group_by(state) %>%
+  summarize(count = n()) %>%
+  kable(caption = "How many politicians per state?",booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+```
+
+## String matching
+
+I will match the two sections of names by employing a technique called string matching. To read more about string-matching, please refer to [this link](https://www.r-bloggers.com/fuzzy-string-matching-a-survival-skill-to-tackle-unstructured-information/). In short, I will use it to compute the distances between any board member and any member of parliament, and if the distance is 'close' enough (subjectively defined), I will consider it as a match, meaning that the board member is also an MP. 
+
+```{r}
+#String-matching
+# library(stringdist)
+# source1.devices <- Directors
+# source2.devices <- bundestag
+# To make sure we are dealing with charts
+# source1.devices$name<-as.character(Directors$dm_full_name)
+# source2.devices$name<-as.character(bundestag$name)
+ 
+# It creates a matrix with the Standard Levenshtein 
+# distance between the name fields of both sources
+# Run only one of these two, and run only once
+# dist.name<-adist(
+#       source1.devices$name,source2.devices$name, 
+#       partial = TRUE, ignore.case = TRUE)
+# dist.name <- stringdistmatrix(
+#  source1.devices$name, source2.devices$name,
+#  method = "osa") 
+# We now take the pairs with the minimum distance
+# min.name<-apply(dist.name, 1, min)
+# Also run this chunck one time
+# match.s1.s2<-NULL  
+# for(i in 1:nrow(dist.name))
+# {
+#    s2.i<-match(min.name[i],dist.name[i,])
+#    s1.i<-i
+#    match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,
+#                                  s2name=source2.devices[s2.i,]$name, 
+#                                  s1name=source1.devices[s1.i,]$name, 
+#                                  adist=min.name[i]),match.s1.s2)
+# }
+# and we then can have a look at the results
+# View(match.s1.s2)
+# write.csv(match.s1.s2,"matches.csv")
+match.s1.s2 <- read.csv("matches.csv")
+```
+
+After a short manual inspection of the data, we can decide the cut-off point.. 
+
+```{r}
+match.s1.s2[order(match.s1.s2$adist),] %>%
+  head() %>%
+  kable(caption = "String Distances",booktabs = TRUE, row.names = FALSE) %>%
+  kable_styling(latex_options = "striped")
+``` 
+
+I think the cut-off point should be 3. So string distances equal to and lower than three I will accept as true matches, everything else, I won't. Let's now filter those observations, because they are the only ones that are going to be relevant to us. 
+
+```{r}
+smallerthan3 <- match.s1.s2$adist < 4
+matches <- match.s1.s2[smallerthan3,]
+matches <- matches[complete.cases(matches),]
+dim(matches)
+```
+
+We have 120 politician-board combinations members! That means that `r 120/708` = 17% of the Bundestag members are member of a Board of a publicly listed company, if we assume that one politician is on one board, which is a quite significant amount! (We will later check the validity of this assumption). On the other hand, only a very small percentage, `r 120/73125` < 0.1% of the Board members is a politician, which is to be expected. 
+
+## Matching politicians to companies
+
+Now, our task is to get indicators of political connections in the `Financial` dataset. I use two definitions of political connections for a firm-year observations:
+
+- An indicator whether a firm has 1 or more board members who are also politicians
+
+- A variable of how many board members are also politicians
+
+In practice, these two variables should be very highly correlated - something we can test very soon. 
+
+To start off, let's take the matches, and see to which firm they belong:
+```{r}
+Companies <- left_join(matches, Directors, by = c("s1name" = "dm_full_name"))
+# Remove all duplicate entries
+Companies <- Companies[!duplicated(Companies[c(4,7)]),]
+#How many unique companies?
+length(unique(Companies$company_name))
+# We can see that 115 unique companies are connected. 
+#How many unique politicians?
+length(unique(Companies$s1name))
+# Given that 74 politicians are connected, this means some politicians have more 
+# than one board position! 
+# Let's now count the number of politicians per firm:
+number_connections <- Companies %>%
+    group_by(company_name) %>%
+    summarise(number = length(s1name))
+#Number of connections variable:
+Financial <- left_join(Financial, number_connections, by = 
+                         c("Company name" = "company_name"))
+Financial$number[is.na(Financial$number)] <- 0
+#Connections indicator (yes or no) variable:
+Financial$indic <- 0
+Financial$indic[is.element(Financial$`Company name`, number_connections$company_name)] <- 1
+```
+
+It would also be possible to match political party of the connections, and electoral results, to the firms to which the politicians are connected. This is not difficult, but I leave it to the reader to do this exercise. 
+
+## Tidying the Financial dataset
+
+Next, we must tidy the data so that it can be used for analysis. I have other resources on how to do this, but here, I will show it again: 
+
+```{r}
+library(tidyverse)
+Financial <- Financial[,-c(1,70)]
+Financial <- Financial %>%
+  pivot_longer(3:68, names_to = "variable", values_to = "value")
+#Extract the year column
+Financial$year <- as.numeric(str_extract(Financial$variable, "[0-9]+"))
+# Remove "th.EUR" from the string
+Financial$variable <- sub("\\sth\\sEUR","", 
+                        Financial$variable)
+# Remove the years from the variable string
+Financial$variable <- sapply(
+  str_extract_all(
+      Financial$variable,"[aA-zZ]+"), 
+  paste, collapse = "_")
+# Convert value to numeric
+Financial$value <- as.numeric(Financial$value)
+#Wider format
+Final <- pivot_wider(data = Financial, names_from = variable, values_from = value, values_fn = list(value = mean))
+#Clean variable names
+library(janitor) 
+Final <- Final %>%
+  clean_names()
+```
+
+
+## Finish! - Some preliminary analysis
+
+Now, we can reap the benefits of our work and do some analysis. For example, are firms with political connections more leveraged than others?
+
+
+```{r}
+# Let's make a graph comparing politically connected firms to those that are not, and compare them
+ggplot(data = Final, aes(x = log(long_term_debt/total_assets))) + 
+  geom_density() + 
+  facet_wrap(.~indic) + 
+  geom_vline(xintercept = median(log(Final$long_term_debt/Final$total_assets), na.rm = TRUE), 
+             linetype = "dashed") + theme_light() +
+  xlab("Distribution of Long-term Debt / Total Assets") + ylab("Density")
+```
+
+Let's now do a small regression analysis. 
+
+```{r}
+#Create several variables
+Final$lev <- Final$long_term_debt/Final$total_assets
+Final$currat <- Final$current_assets/Final$total_assets
+Final$clca <- Final$current_liabilities/Final$current_assets
+#Estimate the models
+model1 <- lm(data = Final, lev ~ indic)
+model2 <- lm(data = Final, lev ~ indic + currat)
+#Filter some observations out
+test <- Final[which(!is.nan(Final$clca) & !is.na(Final$clca) & !is.infinite(Final$clca)),]
+#Final model
+model3 <- lm(data = test, lev ~ indic + currat + clca)
+```
+
+```{r, results = 'asis'}
+library(stargazer)
+stargazer(model1, model2, model3, header = F,
+          title = "Regression Models", type = "html")
+```
+
+
+
+As a second example, are firms with political connections bigger than firms that do not?
+
+
+```{r}
+library(hrbrthemes)
+p1 <- Final %>%
+  ggplot(aes(x = log(total_assets))) + geom_density() + theme_ipsum_ps() +
+  theme(plot.title = element_text(size=12)) + labs(title = "Total Assets") + facet_grid(rows = vars(indic))
+p2 <- Final %>%
+  ggplot(aes(x = log(current_assets))) + geom_density() + theme_ipsum_ps() +
+  theme(plot.title = element_text(size=12)) + ggtitle("Current Assets") + facet_grid(rows = vars(indic))
+p3 <- Final %>%
+  ggplot(aes(x = log(tangible_fixed_assets))) + geom_density() + theme_ipsum_ps() +
+  theme(plot.title = element_text(size=12)) + ggtitle("Tangible FA") + facet_grid(rows = vars(indic))
+library(egg)
+grid.arrange(p1,p2,p3, ncol = 3)
+```
+
+
+Thank you for reading. 

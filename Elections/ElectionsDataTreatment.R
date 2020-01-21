@@ -1,5 +1,6 @@
 #Initial setup
-setwd("/home/bas/Downloads/Elections")
+#setwd("/home/bas/Downloads/Elections")
+setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
 allfiles <- dir()
 allfiles <- allfiles[2:27]
 
@@ -18,6 +19,7 @@ for (i in allfiles) {
 
 #Step 3 contains all the elections
 library(tidyverse)
+names(step3)[1] <- "Regio"
 
 #Create candidate positions
 step4 <- step3 %>%
@@ -26,7 +28,8 @@ step4 <- step3 %>%
 
 #Import all names in Parliament Data
 library(readxl)
-setwd("~/Downloads")
+#setwd("~/Downloads")
+setwd("C:/Users/Machi003/Downloads")
 
 parl <- read_excel("Parlementen.xlsx")
 parl <- parl[,c(seq(1,52,by=2))]
@@ -51,12 +54,22 @@ kandidaten <- kandidaten %>%
   mutate(votes = sum(AantalStemmen), no_of_candidates = max(number))
 
 
-### HIER MORGEN VERDER
+### HIER VERDER
 test <- kandidaten %>%
   mutate(VoteShare = AantalStemmen/votes)
 
 test <- test %>%
   mutate(margin = ifelse(no_of_candidates == "2", AantalStemmen/votes, NA))
+
+test <- test %>%
+  group_by(Regio, date) %>%
+  mutate(maxShare = max(VoteShare))
+
+test <- test %>%
+  mutate(margintest = VoteShare - maxShare)
+
+#Now a rule indicating how many to pick, because in some districts 1 (with 2 or 3 cand)
+#in some districts 2 (with 4 or 5 candidates) or 3 (more candidates)
 
 
 #Dit ook nog aanpassen 

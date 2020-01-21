@@ -1,6 +1,6 @@
 #Initial setup
-#setwd("/home/bas/Downloads/Elections")
-setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
+setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
+#setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
 allfiles <- dir()
 allfiles <- allfiles[2:27]
 
@@ -28,8 +28,8 @@ step4 <- step3 %>%
 
 #Import all names in Parliament Data
 library(readxl)
-#setwd("~/Downloads")
-setwd("C:/Users/Machi003/Downloads")
+setwd("~/Downloads")
+#setwd("C:/Users/Machi003/Downloads")
 
 parl <- read_excel("Parlementen.xlsx")
 parl <- parl[,c(seq(1,52,by=2))]
@@ -51,12 +51,12 @@ kandidaten <- step4[step4$number != "",]
 
 kandidaten <- kandidaten %>%
   group_by(Regio, date) %>%
-  mutate(votes = sum(AantalStemmen), no_of_candidates = max(number))
+  mutate(totalvotes = sum(AantalStemmen), no_of_candidates = max(number))
 
 
 ### HIER VERDER
 test <- kandidaten %>%
-  mutate(VoteShare = AantalStemmen/votes)
+  mutate(VoteShare = AantalStemmen/totalvotes)
 
 test <- test %>%
   mutate(margin = ifelse(no_of_candidates == "2", AantalStemmen/votes, NA))
@@ -71,6 +71,15 @@ test <- test %>%
 #Now a rule indicating how many to pick, because in some districts 1 (with 2 or 3 cand)
 #in some districts 2 (with 4 or 5 candidates) or 3 (more candidates)
 
+#Look at all elected persons lists
+#download.file("http://resources.huygens.knaw.nl/verkiezingentweedekamer/databank/geaggregeerd/download.csv", destfile = "allelected.csv")
+allelected <- read.csv("allelected.csv")
+allelected$date <- as.Date(paste(allelected$jaar, allelected$maand, allelected$dag, sep = "-"))
+
+eltesterinho <- allelected %>%
+  filter(type.verkiezing == "algemeen") %>%
+  group_by(date, districtsnaam) %>%
+  summarise(seats = mean(zetels))
 
 #Dit ook nog aanpassen 
 closeelections0 <- kandidaten %>%

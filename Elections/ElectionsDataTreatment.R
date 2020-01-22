@@ -1,4 +1,4 @@
-#Initial setup
+##Initial setup
 setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
 #setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
 allfiles <- dir()
@@ -7,6 +7,7 @@ allfiles <- allfiles[-c(1,2)]
 #Code for reading the files
 library(stringr)
 
+#Import all files
 step1 <- data.frame()
 step2 <- data.frame()
 step3 <- data.frame()
@@ -20,49 +21,89 @@ for (i in allfiles) {
 #Now, split all the dates according to general election and specifics
 library(tidyverse)
 step3 <- step3 %>%
-  separate(col = date, into = c("test1","test2"), sep = "_")
-
+  separate(col = date, into = c("main_election","sub_election"), sep = "_")
 
 #Maybe remove (1) from string
-str_replace(step3$test2, "\\(1\\)","")
+step3$sub_election <- str_replace(step3$sub_election, "\\(1\\)","")
 
-#Then, attempt to match the kind of election, the amount of seats and the amount of candidates. 
+#Convert into dates
+library(lubridate)
+step3[,6] <- as.Date(step3[,6], format = "%Y%m%d")
+step3[,7] <- dmy(step3[,7])
 
-#Step 3 contains all the elections
-
+# Change variable name
 names(step3)[1] <- "Regio"
 
-#Create candidate positions
-step4 <- step3 %>%
-  group_by(Regio, date) %>%
-  mutate(number = ifelse(Kandidaat != "", seq_along(Kandidaat)-5,""))
+#Then, attempt to match the kind of election, the amount of seats and the amount of candidates. 
+# 1. Make the dates
+allelections <- read.csv("Data/allelections.csv")
+allelections$date <- as.Date(paste(
+    allelections$Jaar, 
+    allelections$Maand, 
+    allelections$Dag, sep = "-"))
 
-#Import all names in Parliament Data
-library(readxl)
-setwd("~/Downloads")
-#setwd("C:/Users/Machi003/Downloads")
+#2. Numericize all other variables about election info
+numchar <- function(x) { as.numeric(as.character(x))}
+allelections[,7:10] <- sapply(allelections[,7:10], numchar) # Don't worry about the NA's
+# These are observations with value '-', so they are automatically coerced to NA
 
-parl <- read_excel("Parlementen.xlsx")
-parl <- parl[,c(seq(1,52,by=2))]
+# 3. Some observations have more turnout than electorate: 
+allelections[allelections$Geldig > allelections$Electoraat,]
+nieuw <- allelections[,c("District","date","Type", "Electoraat","Geldig")]
 
-b <- data.frame()
-c <- data.frame()
 
-for (i in 1:ncol(parl)) {
-  b <- cbind(parl[,i], year = names(parl)[i])
-  names(b) <- c("politician","year")
-  c <- rbind(c,b)
-}
+# 4. Now, attempt to match step3 to election info
+step4 <- merge(x=step3, y=nieuw, 
+               by.x = c("Regio", "sub_election"), 
+               by.y = c("District", "date"))
+step4 <- step4[order(step4[,2], step4[,1], step4[,8], step4[,4], step4[,6], 
+                     decreasing = T),]
 
-c <- c %>% 
-  na.omit()
+# 5. Create candidate positions, number of candidates, and the vote share
+step4 <- step4 %>%
+  group_by(Regio, sub_election) %>%
+  mutate(
+    number = ifelse(Kandidaat != "", seq_along(Kandidaat)-5,""), 
+    no_of_candidates = max(number), 
+    voteshare = ifelse(Kandidaat != "", AantalStemmen/Geldig,""))
 
-# My goal is to find who just won and just lost the elections. Let's find close elections first. 
-kandidaten <- step4[step4$number != "",]
+## Now, we ask ourselves: was it a close election?
+## We get the number of seats available to define close elections for 1 seat, 2 seats, and more seats.
+allelected <- read.csv("Data/allelected.csv")
 
-kandidaten <- kandidaten %>%
-  group_by(Regio, date) %>%
-  mutate(totalvotes = sum(AantalStemmen), no_of_candidates = max(number))
+allelected <- allelected %>%
+  mutate(name = paste(voornaam, achternaam, sep = " "))
+
+allelected <- allelected %>%
+  mutate(name = str_replace(name, "\\s\\s"," "))
+
+politicians <- unique(allelected$name)
+
+## Afterwards, we attempt to find whether the close election featured a runner-up (or second-runner-up) 
+## that has never been into politics yet
+
+#Before I do this, I attempt to clean the string of step4$Kandidaat a little bit
+
+# What do I want to do? I want to replace all J.J.J.de Vlam 
+#and A.de Jong and W.B.van Staveren to their equivalents with spaces..
+
+#This is a test: 
+str_replace("J.J.J.de Vlam", "\\.[a-z]", paste("\\.",substr(str_extract("J.J.J.de Vlam", "\\.[a-z]"),2,2)))
+
+#This is the solution, but observations 872 and 996 are not yet in agreements
+# Tomorrow check: mr. dr. J.H.W.Q.ter Spill
+step4$Kandidaat <- str_replace(step4$Kandidaat, "\\.[a-z]", 
+            paste("\\.",
+                  substr(
+                    str_extract(
+                      step4$Kandidaat, "\\.[a-z]"),
+                          2,2)))
+
+
+#Now make an indicator whether someone is a politician
+testerinho <- step4 %>%
+  mutate(politician = ifelse(Kandidaat != "", ifelse(Kandidaat %in% politicians, 1, 0), ""))
+# Maybe tomorrow, string matching and see whether someone is actually in the list of politicians, but this crude (exact) method already works quite well
 
 
 ### HIER VERDER
@@ -182,4 +223,27 @@ library(gridExtra)
 png(file = "Plot01.png", width = 1024, height = 480)
 grid.arrange(p1,p2, ncol = 2)
 dev.off()
+
+
+#Import all names in Parliament Data
+library(readxl)
+setwd("~/Downloads")
+#setwd("C:/Users/Machi003/Downloads")
+
+
+#Parliament data.. 
+parl <- read_excel("Parlementen.xlsx")
+parl <- parl[,c(seq(1,52,by=2))]
+
+b <- data.frame()
+c <- data.frame()
+
+for (i in 1:ncol(parl)) {
+  b <- cbind(parl[,i], year = names(parl)[i])
+  names(b) <- c("politician","year")
+  c <- rbind(c,b)
+}
+
+c <- c %>% 
+  na.omit()
 

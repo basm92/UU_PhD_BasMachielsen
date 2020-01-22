@@ -2,7 +2,7 @@
 setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
 #setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
 allfiles <- dir()
-allfiles <- allfiles[2:27]
+allfiles <- allfiles[-c(1,2)]
 
 #Code for reading the files
 library(stringr)
@@ -13,12 +13,23 @@ step3 <- data.frame()
 
 for (i in allfiles) {
   step1 <- read.csv(i, sep = ";")
-  step2 <- cbind(step1, date = str_extract(i,"\\d{8}"))
+  step2 <- cbind(step1, date = str_extract(i,"\\d.*[^\\.csv]+"))
   step3 <- rbind(step3, step2)
 }
 
-#Step 3 contains all the elections
+#Now, split all the dates according to general election and specifics
 library(tidyverse)
+step3 <- step3 %>%
+  separate(col = date, into = c("test1","test2"), sep = "_")
+
+
+#Maybe remove (1) from string
+str_replace(step3$test2, "\\(1\\)","")
+
+#Then, attempt to match the kind of election, the amount of seats and the amount of candidates. 
+
+#Step 3 contains all the elections
+
 names(step3)[1] <- "Regio"
 
 #Create candidate positions

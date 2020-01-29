@@ -1,11 +1,13 @@
 ##Initial setup
 setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
 #setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
+
+library(stringr)
+
 allfiles <- dir()
-allfiles <- allfiles[-c(1,2)]
+allfiles <- allfiles[grepl("Uitslag(.+)", allfiles)]
 
 #Code for reading the files
-library(stringr)
 
 #Import all files
 step1 <- data.frame()
@@ -13,7 +15,7 @@ step2 <- data.frame()
 step3 <- data.frame()
 
 for (i in allfiles) {
-  step1 <- read.csv(i, sep = ";")
+  step1 <- read.csv(i, sep = ";", encoding = "UTF-8")
   step2 <- cbind(step1, date = str_extract(i,"\\d.*[^\\.csv]+"))
   step3 <- rbind(step3, step2)
 }
@@ -64,11 +66,16 @@ step4 <- step4 %>%
   group_by(Regio, sub_election) %>%
   mutate(
     number = ifelse(Kandidaat != "", seq_along(Kandidaat)-5,""), 
-    no_of_candidates = max(number), 
     voteshare = ifelse(Kandidaat != "", AantalStemmen/Geldig,""))
 
+step4 <- step4 %>%
+  group_by(Regio, sub_election) %>%
+  mutate(number = as.numeric(number),
+         no_of_candidates = max(number, na.rm = TRUE))
+    
 ## Now, we ask ourselves: was it a close election?
-## We get the number of seats available to define close elections for 1 seat, 2 seats, and more seats.
+## First, we get all politicians
+
 allelected <- read.csv("Data/allelected.csv")
 
 allelected <- allelected %>%
@@ -82,33 +89,49 @@ politicians <- unique(allelected$name)
 ## Afterwards, we attempt to find whether the close election featured a runner-up (or second-runner-up) 
 ## that has never been into politics yet
 
-#Before I do this, I attempt to clean the string of step4$Kandidaat a little bit
+#Before I do this, I attempt to clean the string of  step4$Kandidaat a little bit
+#I run this step a couple of times, because each time, it replaces \.[a-z] with \.[a-z]\s
 
-# What do I want to do? I want to replace all J.J.J.de Vlam 
-#and A.de Jong and W.B.van Staveren to their equivalents with spaces..
-
-#This is a test: 
-str_replace("J.J.J.de Vlam", "\\.[a-z]", paste("\\.",substr(str_extract("J.J.J.de Vlam", "\\.[a-z]"),2,2)))
-
-#This is the solution, but observations 872 and 996 are not yet in agreements
-# Tomorrow check: mr. dr. J.H.W.Q.ter Spill
+for (i in 1:3) {
 step4$Kandidaat <- str_replace(step4$Kandidaat, "\\.[a-z]", 
             paste("\\.",
                   substr(
                     str_extract(
                       step4$Kandidaat, "\\.[a-z]"),
                           2,2)))
+}
 
 
-#Now make an indicator whether someone is a politician
-testerinho <- step4 %>%
+for (i in 1:3) {
+  step4$Kandidaat <- str_replace(step4$Kandidaat, 
+                "mr. |dr. |mr. dr. |dr. mr. |jhr. | jhr. mr. ",
+                  "")
+}
+
+
+# Now make an indicator whether someone is a politician
+step5 <- step4 %>%
   mutate(politician = ifelse(Kandidaat != "", ifelse(Kandidaat %in% politicians, 1, 0), ""))
-# Maybe tomorrow, string matching and see whether someone is actually in the list of politicians, but this crude (exact) method already works quite well
+
+# Then, we get the number of seats available to define close elections for 1 seat, 2 seats, and more seats.
+allelected <- allelected %>%
+  mutate(date = as.Date(
+    paste(allelected$jaar, allelected$maand, allelected$dag, sep = "-")
+  ))
+
+seatsavailable <- allelected %>%
+  group_by(districtsnaam, type.verkiezing,date) %>%
+  summarise(seats = mean(zetels))
 
 
-### HIER VERDER
-test <- kandidaten %>%
-  mutate(VoteShare = AantalStemmen/totalvotes)
+testerinho <- merge(
+  x=step5, y=seatsavailable, 
+  by.x = c("Regio", "sub_election"), 
+  by.y = c("districtsnaam", "date"), all.x = TRUE)
+  
+
+#HIER VERDER 
+
 
 test <- test %>%
   mutate(margin = ifelse(no_of_candidates == "2", AantalStemmen/votes, NA))

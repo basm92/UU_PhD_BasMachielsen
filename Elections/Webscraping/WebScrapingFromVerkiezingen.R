@@ -43,8 +43,7 @@ for (i in 2:length(a)) {
 ## This is the entire algorithm. 
 
 # Now try an error-robust version
-##16 doesn't work, 17 does
-numbers <- as.character(seq(1,50))
+numbers <- as.character(seq(1001,1100))
 
 ## Collect the URLS in a variable
 urls <- NULL
@@ -90,7 +89,8 @@ merge.to.data.frame <- function(x) {
 }
 
 test2 <- merge.to.data.frame(test)
+test2 <- mapply(as.character, test2[,1:5])
 
-write.csv(test2, "allcandidates.csv")
 
+write.csv(test2, file = "allcandidates1001_1100.csv")
 

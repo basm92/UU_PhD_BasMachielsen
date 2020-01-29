@@ -1,5 +1,5 @@
 ##Initial setup
-setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
+#setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
 #setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
 
 library(stringr)
@@ -36,7 +36,8 @@ step3[,7] <- dmy(step3[,7])
 # Change variable name
 names(step3)[1] <- "Regio"
 
-#Then, attempt to match the kind of election, the amount of seats and the amount of candidates. 
+#Then, attempt to match the kind of election, 
+#the amount of seats and the amount of candidates. 
 # 1. Make the dates
 allelections <- read.csv("Data/allelections.csv")
 allelections$date <- as.Date(paste(
@@ -62,17 +63,27 @@ step4 <- step4[order(step4[,2], step4[,1], step4[,8], step4[,4], step4[,6],
                      decreasing = T),]
 
 # 5. Create candidate positions, number of candidates, and the vote share
-step4 <- step4 %>%
-  group_by(Regio, sub_election) %>%
-  mutate(
-    number = ifelse(Kandidaat != "", seq_along(Kandidaat)-5,""), 
-    voteshare = ifelse(Kandidaat != "", AantalStemmen/Geldig,""))
+no_of_candidates <- step4 %>%
+  group_by(Regio, sub_election, Type) %>%
+  filter(Kandidaat != "") %>%
+  count(sub_election)
 
+step4 <- merge(step4, no_of_candidates)
+names(step4)[11] <- "no_of_candidates"
+#so far, correct.. 
+
+# 6. Order it again: order should be: Main election, subelection, 8,2,1,3,5,7
+step4 <- step4[order(step4[,8], step4[,2], step4[,1], step4[,3], step4[,5], step4[,7], 
+                     decreasing = T),]
+
+# 7. Make the numbers
 step4 <- step4 %>%
-  group_by(Regio, sub_election) %>%
-  mutate(number = as.numeric(number),
-         no_of_candidates = max(number, na.rm = TRUE))
-    
+  group_by(Regio, sub_election, Type) %>%
+  mutate(
+    number = ifelse(Kandidaat != "", seq_along(Kandidaat) -5,""), 
+    voteshare = ifelse(Kandidaat != "", AantalStemmen/Geldig,""),
+    number = as.numeric(number))
+
 ## Now, we ask ourselves: was it a close election?
 ## First, we get all politicians
 
@@ -124,149 +135,76 @@ seatsavailable <- allelected %>%
   summarise(seats = mean(zetels))
 
 
-testerinho <- merge(
+step5 <- merge(
   x=step5, y=seatsavailable, 
-  by.x = c("Regio", "sub_election"), 
-  by.y = c("districtsnaam", "date"), all.x = TRUE)
-  
+  by.x = c("Regio", "sub_election","Type"), 
+  by.y = c("districtsnaam", "date","type.verkiezing"), all.x = TRUE)
 
-#HIER VERDER 
+#Order it again
 
-
-test <- test %>%
-  mutate(margin = ifelse(no_of_candidates == "2", AantalStemmen/votes, NA))
-
-test <- test %>%
-  group_by(Regio, date) %>%
-  mutate(maxShare = max(VoteShare))
-
-test <- test %>%
-  mutate(margintest = VoteShare - maxShare)
-
-#Now a rule indicating how many to pick, because in some districts 1 (with 2 or 3 cand)
-#in some districts 2 (with 4 or 5 candidates) or 3 (more candidates)
-
-#Look at all elected persons lists
-#download.file("http://resources.huygens.knaw.nl/verkiezingentweedekamer/databank/geaggregeerd/download.csv", destfile = "allelected.csv")
-allelected <- read.csv("allelected.csv")
-allelected$date <- as.Date(paste(allelected$jaar, allelected$maand, allelected$dag, sep = "-"))
-
-eltesterinho <- allelected %>%
-  filter(type.verkiezing == "algemeen") %>%
-  group_by(date, districtsnaam) %>%
-  summarise(seats = mean(zetels))
-
-#Dit ook nog aanpassen 
-closeelections0 <- kandidaten %>%
-  filter(number == "2", VoteShare > 0.45)
-
-closeelections1 <- kandidaten %>%
-  filter(number == "2" | number == "3", VoteShare > 0.4)
-
-closeelections2 <- kandidaten %>%
-  filter(number == "2" | number == "3", VoteShare > 0.35)
-  
-#Match the election data to the parliament names
-#I have to match step4 with c. 
-library(stringdist)
-
-source1.devices <- kandidaten
-source2.devices <- c
-
-# To make sure we are dealing with charts
-source1.devices$name<-as.character(kandidaten$Kandidaat)
-source2.devices$name<-as.character(c$politician)
-
-# It creates a matrix with the Standard Levenshtein 
-# distance between the name fields of both sources
-# Run only one of these two, and run only once
-# dist.name<-adist(
-#      source1.devices$name,source2.devices$name, 
-#      partial = TRUE, ignore.case = TRUE)
- dist.name <- stringdistmatrix(
- source1.devices$name, source2.devices$name,
- method = "lv") 
-# We now take the pairs with the minimum distance
-min.name<-apply(dist.name, 1, min)
-# Also run this chunck one time
-match.s1.s2<-NULL  
-for(i in 1:nrow(dist.name))
-{
-  s2.i<-match(min.name[i],dist.name[i,])
-  s1.i<-i
-match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,
-                                  s2name=source2.devices[s2.i,]$name, 
-                                  s1name=source1.devices[s1.i,]$name, 
-                                  adist=min.name[i]),match.s1.s2)
-}
-# and we then can have a look at the results
-View(match.s1.s2)
-# write.csv(match.s1.s2,"matches.csv")
-# match.s1.s2 <- read.csv("matches.csv")
+step5 <- step5[order(step5[,8], step5[,2], step5[,1], step5[,3], step5[,5], step5[,7], 
+                     decreasing = T),]
 
 
+#Now find the appropriate margin
+# Step 1 to do this: 
+# In allelected Find the appropriate voter share per region, date, type for every elected guy
+allelected <- merge(allelected, step5[,c(1,2,3,6,13)],
+      by.x = c("districtsnaam", "type.verkiezing", "date", "name"),
+      by.y = c("Regio", "Type", "sub_election", "Kandidaat"), 
+      all.x = TRUE)
 
 
-#Some graphics about electability
-library(hrbrthemes)
-library(scales)
+# Then, select the MINIMUM of elected share in that number, and compute the margin of all others with respect to this guy!
 
-d1 <- step4 %>%
-  filter(RegioUitslag == "Kiesgerechtigden") %>%
-  group_by(date) %>%
-  summarise(TotalKG = sum(AantalStemmen))
-
-d2 <- step4 %>%
-  filter(RegioUitslag == "AantalGeldigeStemmen") %>%
-  group_by(date) %>%
-  summarise(TotalVV = sum(AantalStemmen))
-
-d3 <- cbind(d1,d2)
-d3 <-d3[,-3]
-
-d3 <- d3%>%
-  mutate(date = as.Date(date,  format = "%Y%m%d"))
-
-p1 <- d3 %>%
-  pivot_longer(2:3,names_to = "Variable", values_to = "value") %>%
-  ggplot(aes(x = date, y = value, group = Variable, color = Variable)) + 
-  geom_line() + 
-  theme_ipsum_tw() + 
-  labs(x = "year", y = "Voters") + 
-  scale_y_continuous(labels = comma) +
-  ggtitle("Suffrage Expansion")
+minvswinner <- allelected %>%
+  group_by(districtsnaam, type.verkiezing, date) %>%
+  summarise(minvswinner = min(voteshare))
 
 
-p2 <- d3 %>%
-  mutate(Rate = ifelse(TotalVV/TotalKG > 1, 1, TotalVV/TotalKG)) %>%
-  ggplot(aes(x = date, y = Rate)) + geom_line() + theme_ipsum_tw() + labs(x = "Year", y = "Percentage") + ggtitle("Electoral Turnout")
+# Then, merge it with step5! 
+# All the elected politicians will have a positive margin, all the non-elected will have negative margin
 
-library(gridExtra)
+step6 <- merge(step5, minvswinner,
+      by.x = c("Regio", "Type", "sub_election"),
+      by.y = c("districtsnaam", "type.verkiezing", "date"),
+      all.x = TRUE)
+      
+step6 <- step6[order(step6[,8], step6[,2], step6[,1], step6[,3], step6[,5], step6[,7], 
+                     decreasing = T),]
 
-png(file = "Plot01.png", width = 1024, height = 480)
-grid.arrange(p1,p2, ncol = 2)
-dev.off()
+# If na, just use the margin w.r.t. top vote share
 
+maxvswinner <- step6 %>%
+  group_by(Regio, Type, sub_election) %>%
+  summarise(maxvswinner = max(voteshare))
 
-#Import all names in Parliament Data
-library(readxl)
-setwd("~/Downloads")
-#setwd("C:/Users/Machi003/Downloads")
+step6 <- merge(step6, maxvswinner)
 
-
-#Parliament data.. 
-parl <- read_excel("Parlementen.xlsx")
-parl <- parl[,c(seq(1,52,by=2))]
-
-b <- data.frame()
-c <- data.frame()
-
-for (i in 1:ncol(parl)) {
-  b <- cbind(parl[,i], year = names(parl)[i])
-  names(b) <- c("politician","year")
-  c <- rbind(c,b)
+for (i in 1:nrow(step6)) {
+  if(is.na(step6$minvswinner[i])) {
+    step6$minvswinner[i] <- step6$maxvswinner[i]
+  }
 }
 
-c <- c %>% 
-  na.omit()
+# Finally, compute the margin, such that 
+# All the elected politicians will have a positive margin, 
+# all the non-elected will have negative margin
+step6 <- step6 %>%
+  mutate(voteshare = as.numeric(voteshare), minvswinner = as.numeric(minvswinner))
+
+step6$margin <- step6$voteshare - step6$minvswinner
+
+#This is a small check to see if they're not all the same (passed!) 
+#step6[as.numeric(step6$minvswinner) != as.numeric(step6$maxvswinner),]
+
+#Then, filter the dataset for the guys with the smallest possible negative margin
+#First, a naive table: 0.4 > voteshare > 0.5 & politician == 0
+naivelist <- step5[step5$voteshare > 0.4 & step5$politician == 0,]
+write.csv(naivelist, "naivelist.csv")
+
+#Now, a more nuanced list
+nuancedlist <- step6[between(step6$margin,-0.15,-0.000001) & step6$politician == 0, ]
+write.csv(nuancedlist, "nuancedlist.csv")
+
 

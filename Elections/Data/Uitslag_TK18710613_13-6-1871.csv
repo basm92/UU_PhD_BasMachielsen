@@ -1,0 +1,300 @@
+﻿Regio;RegioCode;RegioUitslag;Kandidaat;AantalStemmen
+Alkmaar;KD34;Kiesgerechtigden;;3215
+Alkmaar;KD34;Opkomst;;2256
+Alkmaar;KD34;AantalStembriefjes;;2256
+Alkmaar;KD34;AantalGeldigeStemmen;;2247
+Alkmaar;KD34;AantalBlancoStemmen;;6
+Alkmaar;KD34;;mr. J.L.de Bruyn Kops;1254
+Alkmaar;KD34;;mr. R.J.graaf van Schimmelpenninck;978
+Almelo;KD15;Kiesgerechtigden;;2151
+Almelo;KD15;Opkomst;;1842
+Almelo;KD15;AantalStembriefjes;;1841
+Almelo;KD15;AantalGeldigeStemmen;;1830
+Almelo;KD15;AantalBlancoStemmen;;5
+Almelo;KD15;;mr. B. Brouwer;1021
+Almelo;KD15;;mr. G.A. Vos de Wael;703
+Almelo;KD15;;dr. A. Kuyper;95
+Amersfoort;KD26;Kiesgerechtigden;;2862
+Amersfoort;KD26;Opkomst;;1702
+Amersfoort;KD26;AantalStembriefjes;;1702
+Amersfoort;KD26;AantalGeldigeStemmen;;1690
+Amersfoort;KD26;AantalBlancoStemmen;;8
+Amersfoort;KD26;;mr. E.L.baron van Hardenbroek van Lockhorst;760
+Amersfoort;KD26;;J.A. Alberdingk Thijm;446
+Amersfoort;KD26;;J. Wolbers;232
+Amersfoort;KD26;;M.D.van Otterloo;186
+Amsterdam;KD72;AantalGeldigeStemmen;;7223
+Amsterdam;KD72;Kiesgerechtigden;;3959
+Amsterdam;KD72;Opkomst;;2424
+Amsterdam;KD72;AantalStembriefjes;;2424
+Amsterdam;KD72;AantalBlancoStemmen;;43
+Amsterdam;KD72;;mr. C. Fock;1262
+Amsterdam;KD72;;jhr.mr. G.C.J.van Reenen;1216
+Amsterdam;KD72;;mr.dr. E.H.s' Jacob;1153
+Amsterdam;KD72;;J.P.de Bordes;1127
+Amsterdam;KD72;;mr. A.S.van Nierop;1071
+Amsterdam;KD72;;H.A. Insinger;1051
+Amsterdam;KD72;;mr.dr. J.J. Teding van Berkhout;118
+Amsterdam;KD72;;mr. L.W.C. Keuchenius;103
+Amsterdam;KD72;;M.D.van Otterloo;92
+Appingedam;KD3;Kiesgerechtigden;;2939
+Appingedam;KD3;Opkomst;;981
+Appingedam;KD3;AantalStembriefjes;;981
+Appingedam;KD3;AantalGeldigeStemmen;;966
+Appingedam;KD3;AantalBlancoStemmen;;14
+Appingedam;KD3;;mr. D.de Ruiter Zijlker;633
+Appingedam;KD3;;dr. A. Kuyper;279
+Arnhem;KD17;Kiesgerechtigden;;2863
+Arnhem;KD17;Opkomst;;1987
+Arnhem;KD17;AantalStembriefjes;;1987
+Arnhem;KD17;AantalGeldigeStemmen;;1977
+Arnhem;KD17;AantalBlancoStemmen;;8
+Arnhem;KD17;;mr. J.P.J.A.graaf van Zuylen van Nijevelt;1009
+Arnhem;KD17;;mr. L.A.J.W.baron van Sloet van de Beele;923
+Arnhem;KD17;;mr. L.W.C. Keuchenius;32
+Assen;KD5;Kiesgerechtigden;;2204
+Assen;KD5;AantalStembriefjes;;951
+Assen;KD5;Opkomst;;950
+Assen;KD5;AantalGeldigeStemmen;;943
+Assen;KD5;AantalBlancoStemmen;;4
+Assen;KD5;;mr. H.J. Smidt;691
+Assen;KD5;;mr. B.J. Gratama;229
+Boxmeer;KD75;Kiesgerechtigden;;2431
+Boxmeer;KD75;AantalStembriefjes;;1653
+Boxmeer;KD75;Opkomst;;1647
+Boxmeer;KD75;AantalGeldigeStemmen;;1618
+Boxmeer;KD75;AantalBlancoStemmen;;25
+Boxmeer;KD75;;mr. P.van den Heuvel;1110
+Boxmeer;KD75;;H.C.F. Kerstens;476
+Breda;KD61;Kiesgerechtigden;;4003
+Breda;KD61;AantalStembriefjes;;3199
+Breda;KD61;Opkomst;;3195
+Breda;KD61;AantalGeldigeStemmen;;3160
+Breda;KD61;AantalBlancoStemmen;;16
+Breda;KD61;;jhr.mr. C.J.C.H.van Nispen tot Sevenaer;2028
+Breda;KD61;;N.R.H. Guljé;1023
+Breda;KD61;;mr. B.J.L.baron van Geer van Jutphaas;60
+Brielle;KD50;Kiesgerechtigden;;1182
+Brielle;KD50;AantalStembriefjes;;641
+Brielle;KD50;Opkomst;;639
+Brielle;KD50;AantalGeldigeStemmen;;626
+Brielle;KD50;AantalBlancoStemmen;;14
+Brielle;KD50;;dr. K.A. Rombach;533
+Brielle;KD50;;dr. A. Kuyper;33
+Brielle;KD50;;mr. M. Bichon van Ysselmonde;20
+Brielle;KD50;;mr. J.W. Gefken;13
+Delft;KD45;Kiesgerechtigden;;2746
+Delft;KD45;Opkomst;;1810
+Delft;KD45;AantalStembriefjes;;1810
+Delft;KD45;AantalGeldigeStemmen;;1786
+Delft;KD45;AantalBlancoStemmen;;23
+Delft;KD45;;mr. J.van Kuyk;1108
+Delft;KD45;;mr. R.J.C. Metelerkamp;425
+Delft;KD45;;dr. A. Kuyper;238
+Deventer;KD14;Kiesgerechtigden;;2771
+Deventer;KD14;Opkomst;;1224
+Deventer;KD14;AantalStembriefjes;;1224
+Deventer;KD14;AantalGeldigeStemmen;;1209
+Deventer;KD14;AantalBlancoStemmen;;11
+Deventer;KD14;;mr. A.van Delden;887
+Deventer;KD14;;mr. G.A. Vos de Wael;111
+Deventer;KD14;;M.D.van Otterloo;102
+Deventer;KD14;;mr. W.L.F.C. ridder van Rappard;58
+Deventer;KD14;;mr. A.F. Vos de Wael;31
+Dokkum;KD8;Kiesgerechtigden;;2520
+Dokkum;KD8;Opkomst;;1375
+Dokkum;KD8;AantalStembriefjes;;1375
+Dokkum;KD8;AantalGeldigeStemmen;;1364
+Dokkum;KD8;AantalBlancoStemmen;;6
+Dokkum;KD8;;mr. W.A. Bergsma;847
+Dokkum;KD8;;mr. L.W.C. Keuchenius;336
+Dokkum;KD8;;D.J.V.baron van Sytzama;155
+Dordrecht;KD42;Kiesgerechtigden;;2109
+Dordrecht;KD42;Opkomst;;1235
+Dordrecht;KD42;AantalStembriefjes;;1235
+Dordrecht;KD42;AantalGeldigeStemmen;;1218
+Dordrecht;KD42;AantalBlancoStemmen;;17
+Dordrecht;KD42;;jhr.mr. W.T. Gevers Deynoot;892
+Dordrecht;KD42;;mr. M. Bichon van Ysselmonde;269
+Dordrecht;KD42;;dr. A. Kuyper;27
+Eindhoven;KD60;Kiesgerechtigden;;2259
+Eindhoven;KD60;AantalStembriefjes;;1235
+Eindhoven;KD60;Opkomst;;1231
+Eindhoven;KD60;AantalGeldigeStemmen;;1199
+Eindhoven;KD60;AantalBlancoStemmen;;32
+Eindhoven;KD60;;mr. P.J.A. Smitz;1128
+Eindhoven;KD60;;mr. P.van den Heuvel;27
+Goes;KD53;Kiesgerechtigden;;1489
+Goes;KD53;Opkomst;;1153
+Goes;KD53;AantalStembriefjes;;1153
+Goes;KD53;AantalGeldigeStemmen;;1123
+Goes;KD53;AantalBlancoStemmen;;7
+Goes;KD53;;mr. P.H. Saaymans Vader;698
+Goes;KD53;;mr. C.P. Lenshoek;367
+Goes;KD53;;jhr.mr. J.J. Pompe van Meerdervoort;26
+Gorinchem;KD41;Kiesgerechtigden;;3169
+Gorinchem;KD41;AantalStembriefjes;;1347
+Gorinchem;KD41;Opkomst;;1346
+Gorinchem;KD41;AantalGeldigeStemmen;;1275
+Gorinchem;KD41;AantalBlancoStemmen;;63
+Gorinchem;KD41;;W.C.M. Begram;1155
+Gorinchem;KD41;;dr. A. Kuyper;63
+Gouda;KD40;Kiesgerechtigden;;3363
+Gouda;KD40;Opkomst;;1707
+Gouda;KD40;AantalStembriefjes;;1707
+Gouda;KD40;AantalGeldigeStemmen;;1687
+Gouda;KD40;AantalBlancoStemmen;;15
+Gouda;KD40;;M.A.F.H. Hoffman;985
+Gouda;KD40;;mr. J.B.L. Wentholt;657
+Groningen;KD1;Kiesgerechtigden;;1529
+Groningen;KD1;Opkomst;;759
+Groningen;KD1;AantalStembriefjes;;759
+Groningen;KD1;AantalGeldigeStemmen;;756
+Groningen;KD1;AantalBlancoStemmen;;3
+Groningen;KD1;;mr. S.van Houten;412
+Groningen;KD1;;mr. L.W.C. Keuchenius;199
+Groningen;KD1;;jhr.mr. A.F.de Savornin Lohman;120
+Haarlem;KD33;Kiesgerechtigden;;2438
+Haarlem;KD33;Opkomst;;1619
+Haarlem;KD33;AantalStembriefjes;;1619
+Haarlem;KD33;AantalGeldigeStemmen;;1612
+Haarlem;KD33;AantalBlancoStemmen;;5
+Haarlem;KD33;;mr. C. Fock;1015
+Haarlem;KD33;;G.L.J.van der Hucht;510
+Haarlem;KD33;;mr. L.W.C. Keuchenius;75
+Haarlemmermeer;KD76;Kiesgerechtigden;;1354
+Haarlemmermeer;KD76;Opkomst;;896
+Haarlemmermeer;KD76;AantalStembriefjes;;896
+Haarlemmermeer;KD76;AantalGeldigeStemmen;;889
+Haarlemmermeer;KD76;AantalBlancoStemmen;;1
+Haarlemmermeer;KD76;;jhr.mr. J.W.H. Rutgers van Rozenburg;478
+Haarlemmermeer;KD76;;jhr.mr. J.L.C.van den Berch van Heemstede;233
+Haarlemmermeer;KD76;;mr. J.J.W.van den Biesen;100
+Haarlemmermeer;KD76;;mr. H.A.des Amorie van der Hoeven;61
+Hoorn;KD35;Kiesgerechtigden;;3593
+Hoorn;KD35;Opkomst;;2463
+Hoorn;KD35;AantalStembriefjes;;2463
+Hoorn;KD35;AantalGeldigeStemmen;;2446
+Hoorn;KD35;AantalBlancoStemmen;;9
+Hoorn;KD35;;K.H.de Jong;1265
+Hoorn;KD35;;mr. W.baron van Goltstein;1100
+Hoorn;KD35;;mr.dr. J.J. Teding van Berkhout;53
+Leeuwarden;KD7;Kiesgerechtigden;;2985
+Leeuwarden;KD7;Opkomst;;1542
+Leeuwarden;KD7;AantalStembriefjes;;1542
+Leeuwarden;KD7;AantalGeldigeStemmen;;1536
+Leeuwarden;KD7;AantalBlancoStemmen;;6
+Leeuwarden;KD7;;J.K.H.de Roo van Alderwerelt;1074
+Leeuwarden;KD7;;U.baron van Schwartzenberg en Hohenlansberg;229
+Leeuwarden;KD7;;jhr.mr. J.E.A.van Panhuys;179
+Leiden;KD38;Kiesgerechtigden;;2779
+Leiden;KD38;Opkomst;;1918
+Leiden;KD38;AantalStembriefjes;;1918
+Leiden;KD38;AantalGeldigeStemmen;;1903
+Leiden;KD38;AantalBlancoStemmen;;4
+Leiden;KD38;;O.baron van Wassenaer van Catwijck;1201
+Leiden;KD38;;W.J. Knoop;693
+Maastricht;KD64;Kiesgerechtigden;;2465
+Maastricht;KD64;AantalStembriefjes;;1124
+Maastricht;KD64;Opkomst;;1123
+Maastricht;KD64;AantalGeldigeStemmen;;1070
+Maastricht;KD64;AantalBlancoStemmen;;48
+Maastricht;KD64;;C.A.baron van Bieberstein Rogalla Zawadsky;927
+Maastricht;KD64;;M. Pieters;125
+Middelburg;KD51;Kiesgerechtigden;;2812
+Middelburg;KD51;AantalStembriefjes;;1744
+Middelburg;KD51;Opkomst;;1742
+Middelburg;KD51;AantalGeldigeStemmen;;1725
+Middelburg;KD51;AantalBlancoStemmen;;11
+Middelburg;KD51;;mr. J.P.R. Tak van Poortvliet;934
+Middelburg;KD51;;mr. J.P.J.A.graaf van Zuylen van Nijevelt;407
+Middelburg;KD51;;dr. A. Kuyper;367
+Nijmegen;KD23;Kiesgerechtigden;;2474
+Nijmegen;KD23;AantalStembriefjes;;1712
+Nijmegen;KD23;Opkomst;;1711
+Nijmegen;KD23;AantalGeldigeStemmen;;1698
+Nijmegen;KD23;AantalBlancoStemmen;;11
+Nijmegen;KD23;;jhr. J.A.C.A.van Nispen van Sevenaer;1206
+Nijmegen;KD23;;mr. W.J. Triebels;472
+Roermond;KD65;Kiesgerechtigden;;1967
+Roermond;KD65;Opkomst;;1287
+Roermond;KD65;AantalStembriefjes;;1287
+Roermond;KD65;AantalGeldigeStemmen;;1220
+Roermond;KD65;AantalBlancoStemmen;;67
+Roermond;KD65;;J.H. Arnoldts;996
+Roermond;KD65;;mr. K.L.J. Cornelis;203
+Rotterdam;KD73;Kiesgerechtigden;;2538
+Rotterdam;KD73;Opkomst;;1738
+Rotterdam;KD73;AantalStembriefjes;;1738
+Rotterdam;KD73;AantalGeldigeStemmen;;1727
+Rotterdam;KD73;AantalBlancoStemmen;;8
+Rotterdam;KD73;;I.D. Fransen van de Putte;1025
+Rotterdam;KD73;;jhr.mr. J.L.C.van den Berch van Heemstede;697
+'s-Gravenhage;KD74;Kiesgerechtigden;;2154
+'s-Gravenhage;KD74;Opkomst;;1125
+'s-Gravenhage;KD74;AantalStembriefjes;;1125
+'s-Gravenhage;KD74;AantalGeldigeStemmen;;1118
+'s-Gravenhage;KD74;AantalBlancoStemmen;;5
+'s-Gravenhage;KD74;;mr. W. Wintgens;779
+'s-Gravenhage;KD74;;mr. E.H. Karsten;289
+'s-Hertogenbosch;KD55;Kiesgerechtigden;;2760
+'s-Hertogenbosch;KD55;Opkomst;;1464
+'s-Hertogenbosch;KD55;AantalStembriefjes;;1435
+'s-Hertogenbosch;KD55;AantalGeldigeStemmen;;1346
+'s-Hertogenbosch;KD55;AantalBlancoStemmen;;86
+'s-Hertogenbosch;KD55;;jhr.mr. J.M.B.J.van der Does de Willebois;1308
+Sneek;KD10;Kiesgerechtigden;;4111
+Sneek;KD10;Opkomst;;2630
+Sneek;KD10;AantalStembriefjes;;2630
+Sneek;KD10;AantalGeldigeStemmen;;2618
+Sneek;KD10;AantalBlancoStemmen;;9
+Sneek;KD10;;A. Moens;1403
+Sneek;KD10;;C.J.de Bordes;708
+Sneek;KD10;;mr. J.B. Oosting;437
+Steenwijk;KD70;Kiesgerechtigden;;1416
+Steenwijk;KD70;Opkomst;;675
+Steenwijk;KD70;AantalStembriefjes;;675
+Steenwijk;KD70;AantalGeldigeStemmen;;669
+Steenwijk;KD70;AantalBlancoStemmen;;4
+Steenwijk;KD70;;jhr. C.M. Storm van 's Gravesande;523
+Steenwijk;KD70;;mr. J.W. Gefken;110
+Steenwijk;KD70;;dr. A. Kuyper;24
+Tiel;KD71;Kiesgerechtigden;;2910
+Tiel;KD71;Opkomst;;2244
+Tiel;KD71;AantalStembriefjes;;2244
+Tiel;KD71;AantalGeldigeStemmen;;2230
+Tiel;KD71;AantalBlancoStemmen;;12
+Tiel;KD71;;mr. D.J.baron van Mackay;1121
+Tiel;KD71;;mr. C.T.graaf van Lynden van Sandenburg;1082
+Tilburg;KD57;Kiesgerechtigden;;3376
+Tilburg;KD57;Opkomst;;1617
+Tilburg;KD57;AantalStembriefjes;;1616
+Tilburg;KD57;AantalGeldigeStemmen;;1609
+Tilburg;KD57;AantalBlancoStemmen;;5
+Tilburg;KD57;;F.H.H. Borret;1358
+Tilburg;KD57;;mr. C.C.A. Beens;226
+Utrecht;KD25;Kiesgerechtigden;;2818
+Utrecht;KD25;Opkomst;;1270
+Utrecht;KD25;AantalStembriefjes;;1269
+Utrecht;KD25;AantalGeldigeStemmen;;1254
+Utrecht;KD25;AantalBlancoStemmen;;9
+Utrecht;KD25;;mr. W.R. Boer;563
+Utrecht;KD25;;mr. N.P.J. Kien;337
+Utrecht;KD25;;mr. J.P.J.A.graaf van Zuylen van Nijevelt;308
+Zutphen;KD19;Kiesgerechtigden;;3015
+Zutphen;KD19;Opkomst;;2214
+Zutphen;KD19;AantalStembriefjes;;2214
+Zutphen;KD19;AantalGeldigeStemmen;;2202
+Zutphen;KD19;AantalBlancoStemmen;;9
+Zutphen;KD19;;mr. J. Dam;1301
+Zutphen;KD19;;mr. A.F. Vos de Wael;430
+Zutphen;KD19;;dr. A. Kuyper;245
+Zutphen;KD19;;mr. H.A. ridder van Rappard;215
+Zwolle;KD12;Kiesgerechtigden;;2607
+Zwolle;KD12;AantalStembriefjes;;1703
+Zwolle;KD12;Opkomst;;1702
+Zwolle;KD12;AantalGeldigeStemmen;;1692
+Zwolle;KD12;AantalBlancoStemmen;;8
+Zwolle;KD12;;mr. A.van Naamen van Eemnes;922
+Zwolle;KD12;;mr. J.W. Gefken;423
+Zwolle;KD12;;mr. A.F. Vos de Wael;282

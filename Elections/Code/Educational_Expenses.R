@@ -101,11 +101,11 @@ Data2 %>%
     geom_line(aes(
         x = perioden, 
         y = totaal_overheidsuitgaven_voor_onderwijs_1,
-        linetype = "Nominal")) +
+        linetype = "Nominal"), size = 1) +
     geom_line(aes(
         x = perioden, 
         y = per_hoofd_van_de_bevolking_23,
-        linetype = "Per Capita")) +
+        linetype = "Per Capita"), size = 1) +
     scale_linetype_manual(values = c("solid", "dashed"), name = "Variable") +
     theme_ipsum_rc() + ggtitle("Educational Expenses and Government Orientation")
 

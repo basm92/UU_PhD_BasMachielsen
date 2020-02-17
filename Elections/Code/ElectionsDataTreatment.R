@@ -1,6 +1,6 @@
 ##Initial setup
-#setwd("~/Documents/UU_PhD_BasMachielsen/Elections")
-#setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections")
+#setwd("~/Documents/UU_PhD_BasMachielsen/Elections/Data")
+#setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Elections/Data")
 
 library(stringr)
 

@@ -109,4 +109,4 @@ Data2 %>%
     scale_linetype_manual(values = c("solid", "dashed"), name = "Variable") +
     theme_ipsum_rc() + ggtitle("Educational Expenses and Government Orientation")
 
-
+ggsave("FigureX.png")

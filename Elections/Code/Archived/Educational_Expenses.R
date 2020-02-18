@@ -107,6 +107,9 @@ Data2 %>%
         y = per_hoofd_van_de_bevolking_23,
         linetype = "Per Capita"), size = 1) +
     scale_linetype_manual(values = c("solid", "dashed"), name = "Variable") +
-    theme_ipsum_rc() + ggtitle("Educational Expenses and Government Orientation")
+    theme_ipsum_rc() + 
+    theme(panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank()
+    ) + ggtitle("Educational Expenses and Government Orientation")
 
 ggsave("FigureX.png")

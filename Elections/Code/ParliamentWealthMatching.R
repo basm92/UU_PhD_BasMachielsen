@@ -103,6 +103,10 @@ parl <- parl %>%
            harnas5 = ifelse(yod - endyr < 6, 1, 0)
            )
 
+# Write a csv of this file to use in voting analysis
+write.csv(parl, "parl.csv")
+
+
 #Now generate the datasets for the plots
 
 grid1 <- parl %>%

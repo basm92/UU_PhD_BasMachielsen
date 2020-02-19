@@ -13,7 +13,7 @@ library(memisc)
 
 # Now, import the sheet of all politicians - correctly matched
 setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
-parl <- read.csv("parl.csv")
+parl <- read.csv("Elections/Data/parl.csv")
 
 parl <- clean_names(parl)
 

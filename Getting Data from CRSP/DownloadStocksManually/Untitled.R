@@ -44,12 +44,12 @@ for (i in 1:100) { #Change 1:100 according to the batch, or to 'b[,1]'
 #Now, a version where I download all the files
 e <- NULL
 f <- NULL
-for (i in 814:1000) { #Change according to the batch
+for (i in 773:3105) { #Change according to the batch
     download.file(paste("https://finance.yahoo.com/quote/",b[i,1],"/history?p=",b[i,1], sep = ""), 
                   destfile = "hello.html")
     source <- read_html("hello.html")
     html <- htmlTreeParse(source, useInternalNodes = T, asText = T)
-    try(tableNodes <- getNodeSet(html, "//table"))
+    tableNodes <- getNodeSet(html, "//table")
     d <- try(readHTMLTable(tableNodes[[1]]))
     try(e <- cbind(d, rep(b[i,1], nrow(d))))
     try(f <- rbind(f, e))
@@ -57,4 +57,12 @@ for (i in 814:1000) { #Change according to the batch
 }
 
 write.csv(f, "stocks.csv")
+
+
+momentum <- function(date_begin, date_end = date_begin, stocks) {
+    date_begin <- as.Date(date_begin)
+    date_end <- as.Date(date_end)
+    stocks %>%
+        mutate(returns = )
+}
            

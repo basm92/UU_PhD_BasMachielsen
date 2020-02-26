@@ -7,6 +7,7 @@ library(hrbrthemes)
 library(janitor)
 library(stringdist)
 library(gridExtra)
+library(scales)
 
 setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
 
@@ -103,6 +104,10 @@ parl <- parl %>%
            harnas5 = ifelse(yod - endyr < 6, 1, 0)
            )
 
+names(parl)[4:24] <- names(parl)[4:24] %>%
+    str_replace("X","") %>%
+    str_replace("\\.","-")
+
 # Write a csv of this file to use in voting analysis
 write.csv(parl, "parl.csv")
 
@@ -149,39 +154,61 @@ p1 <- grid1 %>%
     geom_line() + 
     geom_errorbar(aes(
         ymin = mean + -1.96*se, ymax = mean + 1.96*se), 
-        width = 0.5) +
-    theme_ipsum_rc() + 
-    ggtitle("Unconditional avg. wealth per parliament")
+        width = 0.2) +
+    #theme_ipsum_rc() + 
+    ggtitle("Unconditional avg. wealth per parliament") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 1)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank()) + 
+    xlab("Parliament") + ylab("Mean Wealth") 
 
 p2 <- grid2 %>%
     ggplot(aes(x = parliament, 
                y = mean, 
                group = as.factor(harnas2), 
-               color = as.factor(harnas2), 
-           label = count)) + 
+               linetype = as.factor(harnas2), 
+                label = count)) + 
     geom_line() +
     geom_text() +
-    theme_ipsum_rc() + 
-    ggtitle("Avg. wealth per parliament per value of HARNAS")
+    ggtitle("Avg. wealth per parliament per value of HARNAS") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 1)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank()) + 
+    xlab("Parliament") + ylab("Mean Wealth") + 
+    scale_linetype_manual(name = "Harnas", 
+                          values = c("dashed","solid"),
+                          labels = c(">2 Years","<2 Years"))
 
 p3 <- grid3 %>%
     ggplot(aes(x = parliament, 
                y = mean, 
                group = as.factor(harnas5), 
-               color = as.factor(harnas5), 
+               linetype = as.factor(harnas5), 
                label = count)) + 
     geom_line() +
     geom_text() +
-    theme_ipsum_rc() + 
-    ggtitle("Avg. wealth per parliament per value of HARNAS")
+ #   theme_ipsum_rc() + 
+    ggtitle("Avg. wealth per parliament per value of HARNAS") +
+    scale_y_continuous(labels = scales::number_format(accuracy = 1)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          panel.grid.major.x = element_blank(),
+          panel.grid.minor.x = element_blank()) + 
+    xlab("Parliament") + ylab("Mean Wealth") + 
+    scale_linetype_manual(name = "Harnas", 
+                          values = c("dashed","solid"),
+                          labels = c(">5 Years","<5 Years"))
 
 
 figure1 <- grid.arrange(p1,p2,p3, nrow = 3)
-ggsave("figure1.png",figure1, height = 8, width = 9)
+ggsave("Elections/Figures/figure1.png",figure1, height = 8, width = 9)
 
 
 #To do
 
 #Clean variable names 
 #Make a list of influential politicians and repeat the above exercise
-#Then, do the election lists

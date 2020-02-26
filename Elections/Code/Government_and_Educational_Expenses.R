@@ -16,9 +16,10 @@ library(lubridate)
 #download.file(destfile = "Langetijdreeksen-overheidsfinancien-mev2018_publicatie.xlsx", 
 #              url= url)
 
+setwd("/home/bas/Documents/UU_PhD_BasMachielsen/")
 # Third, read file:
 govtfin <- read_xlsx(
-    "Langetijdreeksen-overheidsfinancien-mev2018_publicatie.xlsx"
+    "Elections/Data/Langetijdreeksen-overheidsfinancien-mev2018_publicatie.xlsx"
 )
 
 # Clean the file
@@ -124,25 +125,25 @@ p1 <- ggplot() +
                   ymin = -Inf, 
                   ymax = Inf,
                   fill = `Politieke kleur`), 
-              alpha = 0.5) + 
-    scale_fill_manual(values = c("dark blue", "purple", "orange"), 
+              alpha = 0.3) + 
+    scale_fill_manual(values = c("darkblue", "purple", "orange"), 
                       name = "Political color") +
     geom_line(data = fig1, 
               aes(x = year, 
                   y = value, 
                   linetype = variable, 
                   group = variable), 
-              size = 1) +
+              size = 0.5) +
     ggtitle("Government Expenditures") +
     scale_linetype_manual(breaks = c("gross_government_expenditure", 
                                      "net_government_expenditure"), 
                           name = "Type", 
                           values = c("solid", "dashed"),
                           labels = c("Gross Expenditures","Net Expenditures")) +
-    theme_ipsum_rc() +
+ #   theme_ipsum_rc() +
     theme(panel.grid.major.x = element_blank(),
           panel.grid.minor.x = element_blank()
-    ) 
+    ) + xlab("Year") + ylab("Value")
 
 #Figure 2
 fig2 <- govtfin %>%
@@ -160,22 +161,22 @@ p2 <- ggplot() + geom_rect(data = GovernmentsNew,
                   ymin = -Inf, 
                   ymax = Inf,
                   fill = `Politieke kleur`), 
-              alpha = 0.5) + 
-    scale_fill_manual(values = c("dark blue", "purple", "orange"), 
+              alpha = 0.3) + 
+    scale_fill_manual(values = c("darkblue", "purple", "orange"), 
                       name = "Political color") +
     geom_line(data = fig2, 
               aes(x = year, 
                   y = value, 
-                  color = variable, 
-                  group = variable), size = 1) +
+                  linetype = variable, 
+                  group = variable), size = 0.5) +
     ggtitle("Government Fiscal Policy") +
-    scale_color_manual(values = c("black", "grey"),
+    scale_linetype_manual(values = c("solid", "dashed"),
                        "Series (% GDP)", 
                        labels = c("Financial Balance", "Taxes")) +
-    theme_ipsum_rc() +
+  #  theme_ipsum_rc() +
     theme(panel.grid.major.x = element_blank(),
           panel.grid.minor.x = element_blank()
-    ) 
+    ) + xlab("Year") + ylab("Value")
 
 fig3 <- govtfin %>%
     filter(year >= "1860-01-01", year <= "1939-01-01") %>%
@@ -193,22 +194,22 @@ p3 <- ggplot() + geom_rect(data = GovernmentsNew,
                          ymin = -Inf, 
                          ymax = Inf,
                          fill = `Politieke kleur`), 
-                     alpha = 0.5) + 
-    scale_fill_manual(values = c("dark blue", "purple", "orange"), 
+                     alpha = 0.3) + 
+    scale_fill_manual(values = c("darkblue", "purple", "orange"), 
                       name = "Political color") +
     geom_line(data = fig3, aes(x = year, 
                   y = value, 
                   linetype = variable, 
                   group = variable), 
-              size = 1) +
+              size = 0.5) +
     ggtitle("Government Debt and GDP") +
     scale_linetype_manual(values = c("solid", "dashed"),
                           "Series", 
                           labels = c("GDP (mln)","Govt Debt (% GDP)")) +
-    theme_ipsum_rc() +
+ #   theme_ipsum_rc() +
     theme(panel.grid.major.x = element_blank(),
           panel.grid.minor.x = element_blank()
-    ) 
+    ) + xlab("Year") + ylab("Value")
 
 
 fig4 <- Data2 %>%
@@ -219,7 +220,9 @@ fig4 <- Data2 %>%
     pivot_longer(2:3,
                  names_to = "variable",
                  values_to = "value"
-    ) %>%
+    ) 
+
+fig4 <- fig4 %>%
     mutate(variable = factor(
         fig4$variable, 
         levels = c("totaal_overheidsuitgaven_voor_onderwijs_1", 
@@ -237,8 +240,8 @@ p4 <- ggplot() +
               ymin = -Inf, 
               ymax = Inf,
               fill = `Politieke kleur`), 
-          alpha = 0.5) + 
-    scale_fill_manual(values = c("dark blue", "orange"), 
+          alpha = 0.3) + 
+    scale_fill_manual(values = c("darkblue", "orange"), 
                       name = "Political color") +
     geom_line(data = fig4, 
               aes(
@@ -246,18 +249,18 @@ p4 <- ggplot() +
                   y = value,
                   group = variable,
                   linetype = variable),
-              size = 1) +
+              size = 0.5) +
     scale_linetype_manual(
         values = c("solid", "dashed"), 
         name = "Variable",
         labels = c("Total", "Per Capita")) +
-    theme_ipsum_rc() + 
+#    theme_ipsum_rc() + 
     theme(panel.grid.major.x = element_blank(),
           panel.grid.minor.x = element_blank()
     ) + ggtitle("Educational Expenses and Government Orientation")
 
 
-png("FigureX1.png", height = 768, width = 1280)
+png("Elections/Figures/FigureX1.png", height = 768, width = 1280)
 grid.arrange(p1, p2, p3, p4, nrow =2)
 dev.off()
 

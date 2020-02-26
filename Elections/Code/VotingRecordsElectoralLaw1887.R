@@ -10,9 +10,11 @@ library(stringdist)
 library(janitor)
 library(lubridate)
 library(memisc)
+library(stargazer)
 
 # Now, import the sheet of all politicians - correctly matched
-setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
+# setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
+setwd("/home/bas/Documents/UU_PhD_BasMachielsen")
 parl <- read.csv("Elections/Data/parl.csv")
 
 parl <- clean_names(parl)
@@ -41,7 +43,7 @@ voting_outcomes <- data.frame(politician = c(
                      "Van Berckel", "Van den Biesen",
                      "Clercx", "Van Wassenaer Catwijck",
                      "Vos de Wael", "Van der Linden",
-                     "Blussé", "Seret", "Visser van Hazerswoude",
+                     "Bluss?", "Seret", "Visser van Hazerswoude",
                      "Van Delden", "Goekoop", "De Ranitz",
                      "Farncombe Sanders", "Viruly Verbrugge", 
                      "Rutgers van Rozenburg", "Goeman Borgesius",
@@ -98,8 +100,15 @@ voting_outcomes <- voting_outcomes %>%
     mutate(name_match = test1887$va[newmatch])
 
 # Now, we can match the voting outcomes with the wealth dataset
-voting_outcomes <- left_join(voting_outcomes, parl, 
-                             by = c("id_match" = "id_match"))
+# But we filter out the duplicate observations in parl to account for 
+# differences in name spelling! 
+voting_outcomes <- left_join(voting_outcomes %>%
+                                 group_by(id_match) %>%
+                                 mutate(id = row_number()),
+                             parl %>%
+                                 group_by(id_match) %>%
+                                 mutate(id = row_number()), 
+                             by = c("id_match", "id"))
 
 voting_outcomes <- voting_outcomes %>%
     mutate(vote = as.numeric(vote))
@@ -119,3 +128,10 @@ model4 <- glm(data = harnas,
               vote ~ poldir + log(1+w_deflated2), family = "binomial")
 
 mtable(model1, model2, model3, model4)
+stargazer(model1, model2, model3, model4, 
+          type = "latex", 
+          header = FALSE,
+          out = "1887results.tex",
+          column.labels = c("Non-harnas", "Harnas"),
+          column.separate = c(2,2)
+)

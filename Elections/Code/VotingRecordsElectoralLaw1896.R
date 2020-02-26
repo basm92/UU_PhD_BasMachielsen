@@ -10,9 +10,11 @@ library(stringdist)
 library(janitor)
 library(lubridate)
 library(memisc)
+library(stargazer)
 
 # Now, import the sheet of all politicians - correctly matched
-setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
+# setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
+setwd("/home/bas/Documents/UU_PhD_BasMachielsen")
 parl <- read.csv("Elections/Data/parl.csv")
 
 parl <- clean_names(parl)
@@ -34,7 +36,7 @@ voting_outcomes <- data.frame(politician = c(
     "van Deinse", "van Vlijmen", "Tydeman",
     "Hintzen", "de Ram", "Lely", 
     "Goekoop", "Conrad", "Drucker", 
-    "van Bylandt", #Van Bylandt Gouda 
+    "C.J.E. van Bylandt", #Van Bylandt Gouda 
     "Travglino", "van Gijn", "Schaafsma", 
     "Meesters", "E. Smidt", "Rutgers van Rozenburg",
     "Kolkman", "Willinge", "Guyot",
@@ -69,7 +71,7 @@ politician <- c("Hennequin", "Donner",
                 "Lucasse", "van den Bergh van Heemstede",
                 "Tijdens", "van Limbrug Stirum", 
                 "Ae. Mackay", "Seret", "Pyttersen", 
-                "van Bylandt") #Van Bylandt Apeldoorn 
+                "F. van Bylandt") #Van Bylandt Apeldoorn 
 
 vote <- rep(0, length(politician))
 
@@ -95,16 +97,54 @@ voting_outcomes <- voting_outcomes %>%
 
 
 ## Correcting the mistakes manually
-voting_outcomes[21,4] <- 828
-voting_outcomes[35,4] <- 666      
-voting_outcomes[57,4] <- 400
+voting_outcomes[8,4] <- 1079
+voting_outcomes[31,4] <- 169
+voting_outcomes[36,4] <- 522
+voting_outcomes[68,4] <- 172      
+voting_outcomes[79,4] <- 293
 
 # Now, replace the names as well
-newmatch <- match(voting_outcomes$id_match, test1887$id_match)
+newmatch <- match(voting_outcomes$id_match, test1896$id_match)
 
 voting_outcomes <- voting_outcomes %>%
-    mutate(name_match = test1887$va[newmatch])
+    mutate(name_match = test1896$va[newmatch])
 
 # Now, we can match the voting outcomes with the wealth dataset
-voting_outcomes <- left_join(voting_outcomes, parl, 
-                             by = c("id_match" = "id_match"))
+# But we filter out the duplicate observations in parl to account for 
+# differences in name spelling! 
+voting_outcomes <- left_join(voting_outcomes %>%
+                                 group_by(id_match) %>%
+                                 mutate(id = row_number()),
+                             parl %>%
+                                 group_by(id_match) %>%
+                                 mutate(id = row_number()), 
+                             by = c("id_match", "id"))
+
+voting_outcomes <- voting_outcomes %>%
+    mutate(vote = as.numeric(vote))
+
+model1 <- glm(data = voting_outcomes, 
+              vote ~ poldir + w_deflated2, family = "binomial")
+model2 <- glm(data = voting_outcomes, 
+              vote ~ poldir + log(1+w_deflated2), family = "binomial")
+
+
+harnas <- voting_outcomes %>%
+    filter(harnas2 == 1) 
+
+model3 <- glm(data = harnas, 
+              vote ~ poldir + w_deflated2, family = "binomial")
+model4 <- glm(data = harnas, 
+              vote ~ poldir + log(1+w_deflated2), family = "binomial")
+
+stargazer(model1, model2, model3, model4, 
+          type = "latex", 
+          header = FALSE,
+          out = "1896results.tex",
+          column.labels = c("Non-harnas", "Harnas"),
+          column.separate = c(2,2)
+)
+
+
+mtable(model1, model2, model3, model4)
+

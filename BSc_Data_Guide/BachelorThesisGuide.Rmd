@@ -2,7 +2,9 @@
 title: "Bachelor Thesis Data Guide: Political Connections"
 author: "Bas Machielsen"
 date: "1/13/2020"
-output: html_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -79,7 +81,7 @@ source <- read_html(
 
 
 bundestag <- as.data.frame(source %>%
-  html_nodes("table.wikitable:nth-child(7)") %>%
+  html_nodes("table.wikitable:nth-child(8)") %>%
   html_table(fill=TRUE))
 
 head(bundestag)
@@ -103,7 +105,7 @@ bundestag$year_of_birth <- str_replace(bundestag$year_of_birth,"\\[(.+)","")
 
 bundestag$constituency_for_directly_elected_members <- str_replace(bundestag$constituency_for_directly_elected_members,"\\s\\[(.+)","")
 
-bundestag$constituency_vote_percentage_if_applicable <- str_replace(bundestag$constituency_vote_percentage_if_applicable,"\\s%(.+)","")
+bundestag$constituency_vote_percentage_for_directly_elected_members <- str_replace(bundestag$constituency_vote_percentage_for_directly_elected_members,"\\s%(.+)","")
 ```
 
 And there we go! Now everything should be reasonably clean to match the names with the names from the directorates, which we downloaded from Amadeus. 
@@ -119,70 +121,32 @@ bundestag %>%
 
 ## String matching
 
-I will match the two sections of names by employing a technique called string matching. To read more about string-matching, please refer to [this link](https://www.r-bloggers.com/fuzzy-string-matching-a-survival-skill-to-tackle-unstructured-information/). In short, I will use it to compute the distances between any board member and any member of parliament, and if the distance is 'close' enough (subjectively defined), I will consider it as a match, meaning that the board member is also an MP. 
+I will match the two sections of names by employing a technique called fuzzy string matching. To read more about string-matching, please refer to [this link](https://www.r-bloggers.com/fuzzy-string-matching-a-survival-skill-to-tackle-unstructured-information/). In short, I will use it to compute the distances between any board member and any member of parliament, and if the distance is 'close' enough (subjectively defined in the `maxDist = 3` argument), I will consider it as a match, meaning that the board member is also an MP. 
 
-```{r}
+```{r warning = FALSE}
 #String-matching
+library(stringdist)
 
-# library(stringdist)
-# source1.devices <- Directors
-# source2.devices <- bundestag
-# To make sure we are dealing with charts
-# source1.devices$name<-as.character(Directors$dm_full_name)
-# source2.devices$name<-as.character(bundestag$name)
- 
-# It creates a matrix with the Standard Levenshtein 
-# distance between the name fields of both sources
+matches <- amatch(Directors$dm_full_name, bundestag$name, maxDist = 3)
 
-# Run only one of these two, and run only once
-# dist.name<-adist(
-#       source1.devices$name,source2.devices$name, 
-#       partial = TRUE, ignore.case = TRUE)
-# dist.name <- stringdistmatrix(
-#  source1.devices$name, source2.devices$name,
-#  method = "osa") 
-# We now take the pairs with the minimum distance
-# min.name<-apply(dist.name, 1, min)
-
-# Also run this chunck one time
-# match.s1.s2<-NULL  
-# for(i in 1:nrow(dist.name))
-# {
-#    s2.i<-match(min.name[i],dist.name[i,])
-#    s1.i<-i
-#    match.s1.s2<-rbind(data.frame(s2.i=s2.i,s1.i=s1.i,
-#                                  s2name=source2.devices[s2.i,]$name, 
-#                                  s1name=source1.devices[s1.i,]$name, 
-#                                  adist=min.name[i]),match.s1.s2)
-# }
-# and we then can have a look at the results
-# View(match.s1.s2)
-# write.csv(match.s1.s2,"matches.csv")
-match.s1.s2 <- read.csv("matches.csv")
-
-
+Directors <- Directors %>%
+  mutate(matchname = bundestag$name[matches])
 ```
 
-After a short manual inspection of the data, we can decide the cut-off point.. 
+After a short manual inspection of the data, we can see that the matches are near perfect and there are no false flags..  
 
-```{r}
-match.s1.s2[order(match.s1.s2$adist),] %>%
+```{r warning = FALSE}
+Directors[!is.na(Directors$matchname),] %>%
   head() %>%
   kable(caption = "String Distances",booktabs = TRUE, row.names = FALSE) %>%
   kable_styling(latex_options = "striped")
+
+
+dim(Directors[!is.na(Directors$matchname),])
 ``` 
 
-I think the cut-off point should be 3. So string distances equal to and lower than three I will accept as true matches, everything else, I won't. Let's now filter those observations, because they are the only ones that are going to be relevant to us. 
 
-```{r}
-smallerthan3 <- match.s1.s2$adist < 4
-matches <- match.s1.s2[smallerthan3,]
-matches <- matches[complete.cases(matches),]
-
-dim(matches)
-```
-
-We have 120 politician-board combinations members! That means that `r 120/708` = 17% of the Bundestag members are member of a Board of a publicly listed company, if we assume that one politician is on one board, which is a quite significant amount! (We will later check the validity of this assumption). On the other hand, only a very small percentage, `r 120/73125` < 0.1% of the Board members is a politician, which is to be expected. 
+We have 119 politician-board combinations members! That means that `r 119/708` = 16% of the Bundestag members are member of a Board of a publicly listed company, if we assume that one politician is on one board, which is a quite significant amount! (We will later check the validity of this assumption). On the other hand, only a very small percentage, `r 119/73125` < 0.1% of the Board members is a politician, which is to be expected. 
 
 ## Matching politicians to companies
 
@@ -195,40 +159,24 @@ Now, our task is to get indicators of political connections in the `Financial` d
 In practice, these two variables should be very highly correlated - something we can test very soon. 
 
 To start off, let's take the matches, and see to which firm they belong:
+
 ```{r}
-Companies <- left_join(matches, Directors, by = c("s1name" = "dm_full_name"))
-# Remove all duplicate entries
-Companies <- Companies[!duplicated(Companies[c(4,7)]),]
+Companies <- Directors %>%
+  group_by(company_name) %>%
+  summarise(count = sum(!is.na(matchname)))
 
-#How many unique companies?
-length(unique(Companies$company_name))
-# We can see that 115 unique companies are connected. 
-
-#How many unique politicians?
-length(unique(Companies$s1name))
-
-# Given that 74 politicians are connected, this means some politicians have more 
+dim(Companies[Companies$count != 0,])
+# Given that 114 companies and 119 politicians are connected, this means some politicians have more 
 # than one board position! 
-
-# Let's now count the number of politicians per firm:
-
-number_connections <- Companies %>%
-    group_by(company_name) %>%
-    summarise(number = length(s1name))
-
-#Number of connections variable:
-Financial <- left_join(Financial, number_connections, by = 
-                         c("Company name" = "company_name"))
-
-Financial$number[is.na(Financial$number)] <- 0
-
-
-#Connections indicator (yes or no) variable:
-Financial$indic <- 0
-Financial$indic[is.element(Financial$`Company name`, number_connections$company_name)] <- 1
 
 ```
 
+Matching to companies is now very easy:
+
+```{r}
+Financial <- left_join(Financial, Companies, by = c(`Company name` = "company_name"))
+
+```
 It would also be possible to match political party of the connections, and electoral results, to the firms to which the politicians are connected. This is not difficult, but I leave it to the reader to do this exercise. 
 
 ## Tidying the Financial dataset
@@ -277,12 +225,15 @@ Now, we can reap the benefits of our work and do some analysis. For example, are
 ```{r}
 # Let's make a graph comparing politically connected firms to those that are not, and compare them
 
-ggplot(data = Final, aes(x = log(long_term_debt/total_assets))) + 
+Final %>%
+  mutate(countgrzero = count > 0) %>%
+  ggplot(aes(x = log(long_term_debt/total_assets))) + 
   geom_density() + 
-  facet_wrap(.~indic) + 
+  facet_wrap(.~countgrzero) + 
   geom_vline(xintercept = median(log(Final$long_term_debt/Final$total_assets), na.rm = TRUE), 
              linetype = "dashed") + theme_light() +
   xlab("Distribution of Long-term Debt / Total Assets") + ylab("Density")
+
 ```
 
 Let's now do a small regression analysis. 
@@ -294,15 +245,15 @@ Final$currat <- Final$current_assets/Final$total_assets
 Final$clca <- Final$current_liabilities/Final$current_assets
 
 #Estimate the models
-model1 <- lm(data = Final, lev ~ indic)
-model2 <- lm(data = Final, lev ~ indic + currat)
+model1 <- lm(data = Final, lev ~ count)
+model2 <- lm(data = Final, lev ~ count + currat)
 
 
 #Filter some observations out
 test <- Final[which(!is.nan(Final$clca) & !is.na(Final$clca) & !is.infinite(Final$clca)),]
 
 #Final model
-model3 <- lm(data = test, lev ~ indic + currat + clca)
+model3 <- lm(data = test, lev ~ count + currat + clca)
 ```
 
 ```{r, results = 'asis'}
@@ -311,29 +262,29 @@ stargazer(model1, model2, model3, header = F,
           title = "Regression Models", type = "html")
 ```
 
-
-
-As a second example, are firms with political connections bigger than firms that do not?
+As a second example, we can ask, are firms with political connections bigger than firms that do not?
 
 
 ```{r}
 library(hrbrthemes)
 p1 <- Final %>%
+  mutate(countgrzero = count > 0) %>%
   ggplot(aes(x = log(total_assets))) + geom_density() + theme_ipsum_ps() +
-  theme(plot.title = element_text(size=12)) + labs(title = "Total Assets") + facet_grid(rows = vars(indic))
+  theme(plot.title = element_text(size=12)) + labs(title = "Total Assets") + facet_grid(rows = vars(countgrzero))
 
 p2 <- Final %>%
+  mutate(countgrzero = count > 0) %>%
   ggplot(aes(x = log(current_assets))) + geom_density() + theme_ipsum_ps() +
-  theme(plot.title = element_text(size=12)) + ggtitle("Current Assets") + facet_grid(rows = vars(indic))
+  theme(plot.title = element_text(size=12)) + ggtitle("Current Assets") + facet_grid(rows = vars(countgrzero))
 
 p3 <- Final %>%
+  mutate(countgrzero = count > 0) %>%
   ggplot(aes(x = log(tangible_fixed_assets))) + geom_density() + theme_ipsum_ps() +
-  theme(plot.title = element_text(size=12)) + ggtitle("Tangible FA") + facet_grid(rows = vars(indic))
+  theme(plot.title = element_text(size=12)) + ggtitle("Tangible FA") + facet_grid(rows = vars(countgrzero))
 
 library(egg)
 grid.arrange(p1,p2,p3, ncol = 3)
 ```
-
 
 Thank you for reading. 
 

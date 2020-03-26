@@ -1,5 +1,5 @@
 #Set the working directory appropriately
-setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Paper1")
+#setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Paper1")
 
 #Load libraries
 library(readxl)
@@ -14,8 +14,8 @@ x <- c("ggmap", "rgdal", "rgeos", "maptools", "tmap")
 lapply(x, library, character.only = TRUE)
 
 #Load the politicians files
-politicians <- read_xlsx("Data/tk_1815tot1950uu.xlsx", sheet = 1)
-politicians2 <- read_xlsx("Data/tk_1815tot1950uu.xlsx", sheet = 2)
+politicians <- read_xlsx("../Data/tk_1815tot1950uu.xlsx", sheet = 1)
+politicians2 <- read_xlsx("../Data/tk_1815tot1950uu.xlsx", sheet = 2)
 
 birth <- politicians2 %>%
     filter(rubriek == "3010") %>%
@@ -25,19 +25,23 @@ death <- politicians2 %>%
     filter(rubriek == "3020") %>%
     select(1:4)
 
-
 politicians <- left_join(politicians, birth, by = 'b1-nummer')
 names(politicians)[12:13] <- c("birthplace", "birthdate")
 
 politicians <- left_join(politicians, death, by = 'b1-nummer')
 names(politicians)[15:16] <- c("deathplace", "deathdate")
 
-
 politicians <- politicians %>%
     mutate(deathdate = dmy(deathdate), 
            birthdate = dmy(birthdate),
            `begin periode` = ymd(`begin periode`),
            `einde periode` = ymd(`einde periode`))
+
+#How many pol died in Den Haag? 
+politicians %>%
+    filter(deathdate < "1860-01-01") %>%
+    group_by(deathplace) %>%
+    summarise(count = n())
 
 
 ## Politicians active before 1887

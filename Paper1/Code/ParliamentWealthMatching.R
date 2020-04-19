@@ -9,10 +9,10 @@ library(stringdist)
 library(gridExtra)
 library(scales)
 
-setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
+#setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen")
 
 # Dataframe of all lower house members
-parl <- read_excel("Elections/Data/Parlementen.xlsx")
+parl <- read_excel("../Data/Parlementen.xlsx")
 
 ## Clean the dataframe
 parl <- parl[c(seq(from = 1, 
@@ -40,7 +40,7 @@ parl$name <- str_replace(parl$name, "\\|(.*)", "")
 
 # Now the dataframe is finished. String matching with politicians data as follows
 ## Import the identified data
-polnames <- read_excel("Elections/Data/tk_1815tot1950uu.xlsx")
+polnames <- read_excel("../Data/tk_1815tot1950uu.xlsx")
 
 polnames <- polnames %>%
     unite(name, 4,2, sep = " ", remove = FALSE)
@@ -75,7 +75,7 @@ write.csv(parl,"match.csv")
 # Manually match the rest
 
 #First, I import the file were the exact matches are located (manually checked)
-parl <- read.csv("Elections/Data/match_corrected.csv", 
+parl <- read.csv("../Data/match_corrected.csv", 
                  colClasses=c(rep("character",3), 
                               rep("numeric",21)))
 

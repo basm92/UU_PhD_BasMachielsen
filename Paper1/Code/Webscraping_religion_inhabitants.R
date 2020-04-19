@@ -51,30 +51,6 @@ write.csv(final, "../Data/Religion_inhabitants_per_district.csv")
 # Now, repeat the task for municipalities per districts
 urls <- paste("http://resources.huygens.knaw.nl/verkiezingentweedekamer/databank/zoek_district/gemeenten_per_district?District_ID=", seq(10,150), sep = "")
 
-#Initialize
-out <- NULL
-
-for (i in 1:length(urls)) {
-table <- read_html(urls[i]) %>%
-  html_nodes(".vertical") %>%
-  html_table(fill = TRUE, ) %>%
-  as.data.frame()
-districtname <- str_replace(table[1,1], pattern = "Gemeenten die deel uitmaakten van het district ", "")
-table <- table <- table[-1,]
-colnames(table) <- table[1,]
-table <- table[-1,]
-data <- data.frame(table, districtname)
-out <- rbind(out, data)
-Sys.sleep(0.5)
-}
-
-#Write final document
-final <- out %>%
-  select(-c(2:5))
-
-write.csv(final, "../Data/Municipalities_and_districts.csv")
-
-
 #New version with indicators when a municipality belonged to a certain district
 out <- NULL
 
@@ -101,12 +77,15 @@ districtname <- read_html(urls[i]) %>%
 data <- data.frame(table, districtname)
 
 out <- rbind(out, data)
-
+  
 Sys.sleep(0.5)
 }
 
-out %>%
+final <- out %>%
   mutate_all(str_replace, "Â", "") %>%
   mutate_at(c(2,3,4,5), str_trim) %>%
-  mutate_at(c(2,3,4,5), as.numeric)
-  
+  mutate_at(c(2,3,4,5), as.numeric) 
+
+colnames(final) <- c("gemeente", "1848", "1850", "1888", "1897", "district")
+
+write.csv(final, "../Data/Municipalities_and_districts.csv")

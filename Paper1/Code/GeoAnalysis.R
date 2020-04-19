@@ -1,6 +1,9 @@
 #Set the working directory appropriately
 #setwd("C:/Users/Machi003/RWD/UU_PhD_BasMachielsen/Paper1")
 
+
+#Primary source for shapefiles
+#https://easy.dans.knaw.nl/ui/datasets/id/easy-dataset:44426/tab/2
 #Load libraries
 library(readxl)
 library(tidyverse)

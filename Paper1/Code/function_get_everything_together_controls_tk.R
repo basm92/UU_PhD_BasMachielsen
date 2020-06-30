@@ -7,11 +7,12 @@ library(lubridate)
 library(stringr)
 
 # Functions that we need to match a dataframe with votes, politician's names and their id's to all independent variables:
-# find_district(polid, dates)
+# find_district(polid, date)
 # find_strikes(district, year)
 # find_religion(district, year)
-# find_demographics(polid, dates)
-
+# find_demographics(dataframe with $vote, $b1-nummer and $toelichting = district)
+# find_econcontrols
+# find_eleccontrols
 
 #From the politician number, find the district
 politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
@@ -45,7 +46,6 @@ find_district(politicians$`b1-nummer`, "1900-01-01")
 
 
 #From the district and time, find the strikes
-
 ## Read in the strikes (municipality level) and clean it
 strikes <- read.csv("./Data/howmuch.csv") %>%
   filter(JAAR > 1870, JAAR < 1919, GEMEENTE != "", GEMEENTE != "nvt") %>%
@@ -201,22 +201,21 @@ find_religion <- function(district, year, append = TRUE) {
 }
 
 ## Example
-find_religion(districts$toelichting, 1900)
+find_religion(c("Amsterdam", "Gulpen"), 1900)
 
 
 #From the polid, find the demographic control variables
 ## Tenure, age of death, age of entrance, electoral horizon (next election and until pension), party affiliation
-politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
-career <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
+politicians2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
+career2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
 
-career <- career %>%
+career2 <- career2 %>%
   filter(rubriek == "3010" | rubriek == "3020") %>%
   dplyr::select(c(1:2, 4)) %>%
   dplyr::group_split(rubriek)
   
-
-together <- merge(politicians, career[[1]]) %>%
-  merge(career[[2]], by = "b1-nummer")
+together <- merge(politicians2, career2[[1]]) %>%
+  merge(career2[[2]], by = "b1-nummer")
 
 colnames(together)[c(12,14)] <- c("dateofbirth", "dateofdeath")
 
@@ -225,36 +224,59 @@ together <- together %>%
   as_tibble() %>%
   mutate(across(contains("periode"), ymd), across(contains("date"), dmy))
 
-## Make a conversion table for party affiliation (so i can create that variable)
 
 ## Get the dataset for when the next election was enacted (measuring short-term election cycle)
 
-### Load elections
-elections <- read.csv("./Data/allelections.csv") %>%
-  janitor::clean_names() %>%
-  as_tibble() %>%
-  mutate(across(c(dag,maand,jaar), as.numeric)) %>%
-  unite("date", 2:4, sep = "-") %>%
-  mutate(date = dmy(date))
+### Specifiy the district, polid, and date in distrpoliddate 
 
-### Find all districts we have to look up
-find_district(polid, "1910-01-01") -> test
-cbind(test, votedate = ymd("1910-01-01"))-> test
+find_district(polid, "1910-01-01") -> distrpoliddate
+cbind(distrpoliddate, votedate = ymd("1910-01-01"))-> distrpoliddate
+
+distrpoliddate[2,2] <- "Tilburg"
+### This is an auxiliary Function: Load elections, and filter to the following information: 
+### number, district, days to next election in that district
+### To be used within find_demographcis
+
+which_elections <- function(distrpoliddate) {
+  
+  #Read in all elections
+  elections <- read.csv("./Data/allelections.csv") %>%
+      janitor::clean_names() %>%
+      as_tibble() %>%
+    mutate(across(c(dag,maand,jaar), as.numeric)) %>%
+    unite("date", 2:4, sep = "-") %>%
+    mutate(date = dmy(date))
 
 ### Filter it for the right elections (closest to the date of interest, and in the future)
-elections %>%
-  filter(district %in% test$toelichting) %>%
-  mutate(diff = date - test$votedate) %>%
-  group_by(district) %>%
-  filter(diff > 0) %>%
-  slice(which.min(abs(diff))) ## TODO: merge this dataset with the b1_nummer (otherwise unmergeable)
+  elections <- elections %>%
+    filter(district %in% distrpoliddate$toelichting) %>%
+    mutate(diff = date - distrpoliddate$date) %>%
+    group_by(district) %>%
+    filter(diff > 0) %>%
+    slice(which.min(abs(diff))) ## TODO: merge this dataset with the b1_nummer (otherwise unmergeable)
 
-find_demographics <- function(polid, date) {
+  elections <- merge(elections, distrpoliddate, 
+                     by.x = "district", 
+                     by.y = "toelichting") %>%
+    select(`b1-nummer`, district, diff) %>%
+    rename(days_to_next_el = diff)
   
-  date <- ymd(date)
+  elections 
+  
+}
+
+## Example: 
+which_elections(distrpoliddate)
+
+#Before running this, make sure you have run the two lines with distrpoliddate
+#and cleaned its output
+#Then, get the demographic variables
+find_demographics <- function(distrpoliddate) {
+  
+  date <- ymd(distrpoliddate$votedate)[1]
   
   data <- together %>%
-    filter(b1_nummer %in% polid) %>%
+    filter(b1_nummer %in% distrpoliddate$`b1-nummer`) %>%
     mutate(tenure = einde_periode - begin_periode,
            age_of_death = dateofdeath-dateofbirth,
            age_of_entrance = begin_periode - dateofbirth,
@@ -264,13 +286,32 @@ find_demographics <- function(polid, date) {
     )
   
   #Merge the dataset with the election with the data set here ^^
-           
+  temp <- which_elections(distrpoliddate)
+  merge(data, temp, 
+        by.x = "b1_nummer", 
+        by.y = "b1-nummer") %>%
+    as_tibble()
 }
+
+## Example
+## You have to call the arguments date, b1-nummer and toelichting
+date <- ymd("1910-01-01")
+polid <- c("00001", "00034")
+
+find_district(polid, date) -> example
+example <- cbind(example, date)
+example[2,2] <- "Tilburg"
+
+find_demographics(example)
+
+## Make a conversion table for party affiliation (so i can create that variable)
+## In a different file
+#source(newfile.R)
+
 
 #From the polid, find the wealth
 
-
-#From the wealth and vote date, compute the wealth back in time
+##From the wealth and vote date, compute the wealth back in time
 
 
               

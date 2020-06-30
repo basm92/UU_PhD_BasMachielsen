@@ -10,7 +10,8 @@ library(stringr)
 # find_district(polid, date)
 # find_strikes(district, year)
 # find_religion(district, year)
-# find_demographics(dataframe with $vote, $b1-nummer and $toelichting = district)
+# find_demographics(datafram  e with $vote, $b1-nummer and $toelichting = district)
+
 # find_econcontrols
 # find_eleccontrols
 
@@ -228,9 +229,9 @@ together <- together %>%
 ## Get the dataset for when the next election was enacted (measuring short-term election cycle)
 
 ### Specifiy the district, polid, and date in distrpoliddate 
-
+polid <- c("00001", "00034")
 find_district(polid, "1910-01-01") -> distrpoliddate
-cbind(distrpoliddate, votedate = ymd("1910-01-01"))-> distrpoliddate
+cbind(distrpoliddate, date = ymd("1910-01-01"))-> distrpoliddate
 
 distrpoliddate[2,2] <- "Tilburg"
 ### This is an auxiliary Function: Load elections, and filter to the following information: 
@@ -273,7 +274,7 @@ which_elections(distrpoliddate)
 #Then, get the demographic variables
 find_demographics <- function(distrpoliddate) {
   
-  date <- ymd(distrpoliddate$votedate)[1]
+  date <- ymd(distrpoliddate$date)[1]
   
   data <- together %>%
     filter(b1_nummer %in% distrpoliddate$`b1-nummer`) %>%
@@ -281,17 +282,27 @@ find_demographics <- function(distrpoliddate) {
            age_of_death = dateofdeath-dateofbirth,
            age_of_entrance = begin_periode - dateofbirth,
            age_of_vote = date - dateofbirth,
-           long_elec_horiz = einde_periode - date,
-           party_affil = 1 #TODO: Get the party affiliation dataset
+           long_elec_horiz = einde_periode - date
     )
   
   #Merge the dataset with the election with the data set here ^^
   temp <- which_elections(distrpoliddate)
-  merge(data, temp, 
+  data <- merge(data, temp, 
         by.x = "b1_nummer", 
-        by.y = "b1-nummer") %>%
+        by.y = "b1-nummer")
+  
+  ## A conversion table for party affiliation (so i can create that variable)
+  temp <- read.csv("./Data/key_politicalparty_category.csv") %>%
+    select(-1) %>%
+    rename(polparty=class)
+  
+  ## Merge this variable in the results, and finalize the output
+  merge(data, temp,
+        by.x = "partij_en_fractie_s",
+        by.y = "partys") %>%
     as_tibble()
 }
+
 
 ## Example
 ## You have to call the arguments date, b1-nummer and toelichting
@@ -302,11 +313,7 @@ find_district(polid, date) -> example
 example <- cbind(example, date)
 example[2,2] <- "Tilburg"
 
-find_demographics(example)
-
-## Make a conversion table for party affiliation (so i can create that variable)
-## In a different file
-#source(newfile.R)
+find_demographics(example) -> test
 
 
 #From the polid, find the wealth

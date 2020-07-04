@@ -2,10 +2,13 @@
 ## Nearest socialists, socialist dummy, show-up rate, 
 ## nearest competitor, amount of votes, percentage of votes
 ## Margin above 2nd candidate
-
+library(tidyverse)
+library(stringr)
+library(lubridate)
+library(readxl)
 
 ### Read in an elections dataset
-
+setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1")
 files <- dir("./Data")
 allelections <- files[grepl("Uitslag_TK", files)]
 
@@ -89,10 +92,9 @@ find_eleccontrols <- function(district, date){
   # General election characteristics
   generalinfo <- elecinfo %>%
     filter(RegioUitslag == "Kiesgerechtigden" | RegioUitslag == "Opkomst") %>%
-    select(Regio, RegioUitslag, AantalStemmen) %>%
+    select(Regio, RegioUitslag, AantalStemmen, side) %>%
     pivot_wider(names_from = RegioUitslag, values_from = AantalStemmen) %>%
-    mutate(Turnout = Opkomst/Kiesgerechtigden) %>%
-    cbind(date = date)
+    mutate(Turnout = Opkomst/Kiesgerechtigden)
   
   # Characteristics of politicians
   ## Get the names of the politicians
@@ -104,7 +106,7 @@ find_eleccontrols <- function(district, date){
   generalinfo <- generalinfo %>%
     merge(
       politicians %>%
-        select(`b1-nummer`, achternaam),
+        select(`b1-nummer`, voorletters, prepositie, achternaam),
       by.x = "b1-nummer",
       by.y = "b1-nummer")
   
@@ -113,10 +115,43 @@ find_eleccontrols <- function(district, date){
     group_by(District) %>%
     mutate(diff = date - Date) %>%
     filter(diff > 0) %>%
-    slice_min(diff)  ## TODO: Extract the necessary variables from this and merge with generalinfo
+    slice_min(diff) %>%
+    mutate(name = str_trim(name))
+  
+  ## TODO: Extract the necessary variables from this and merge with generalinfo
+  #And goal: return general info with all these variables:
   #socialist margin, socialist dummy, nearest competitor margin, amount of votes, total margin, 
   
-  ## String-match them to the candidates per district
-  ## Find amount of votes and margin
+  #Version 1
+  polchars %>%
+    group_by(District) %>%
+    mutate(socialistdum = ifelse(any(grepl("*.?SDAP*.?", Aanbevolen.door)), "1", "0"),
+         socialistpercentage = sum(Percentage[grepl("*.?SDAP*.?", Aanbevolen.door)]),
+         elected = ifelse(
+           grepl(
+             paste(
+               paste("*.?", generalinfo$voorletters, "*.?", generalinfo$achternaam, sep = ""), 
+               collapse = "|"), name), "1", "0"),
+         nearestcompetitormargin = ifelse(Percentage - max(Percentage[elected != "1"]) == Inf,
+                                    0, 
+                                    Percentage - max(Percentage[elected != "1"]))) %>%
+         filter(elected == "1")
+  
+  
+  #Version 2 (Denk dat deze beter wordt)
+  polchars %>%
+    group_by(District) %>%
+    mutate(socialistdum = ifelse(any(grepl("*.?SDAP*.?", Aanbevolen.door)), "1", "0"),
+           socialistpercentage = sum(Percentage[grepl("*.?SDAP*.?", Aanbevolen.door)]),
+           elected = ifelse(grepl(paste(generalinfo$achternaam, collapse = "|"), name), "1", "0"),
+           nearestcompetitormargin = ifelse(Percentage - max(Percentage[elected != "1"]) == Inf,
+                                      0, 
+                                      Percentage - max(Percentage[elected != "1"]))) %>%
+    merge(generalinfo %>%
+            select(Regio, `b1-nummer`, voorletters, prepositie, achternaam), by.x = "District", by.y = "Regio") %>%
+    mutate(elec = ain(name, paste(voorletters, prepositie, achternaam), maxDist = 5, method = "lv")) -> test
+
+  
+  ## TO DO: Good string matching... 
   
 }

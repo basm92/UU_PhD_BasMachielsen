@@ -14,7 +14,7 @@ allelections <- files[grepl("Uitslag_TK", files)]
 
 b <- NULL
 for(i in allelections){
-  a <- read.csv(paste("./Data/",i, sep = ""), sep = ";")
+  a <- read.csv(paste("./Data/",i, sep = ""), sep = ";", encoding = "utf-8")
   
   title <- readr::parse_factor(i)
   
@@ -44,9 +44,10 @@ allcandidates <- files[grepl("allcandidates", files)]
 b <- NULL
 
 for(i in allcandidates) {
-  a <- read.csv(paste("./Data/", i, sep = ""))
-  
+  a <- read_csv(paste("./Data/", i, sep = ""),locale = readr::locale(encoding = "latin1"))
+  colnames(a) <- c("X1", "District", "Aanbevolen.door", "Aantal.stemmen", "Percentage", "V5")
   b <- rbind(b, a)
+  print(i)
 }
 
 allcandidates <- b %>%
@@ -65,15 +66,15 @@ allcandidates <- b %>%
 
 ### Find the districts for which we want to find electoral information
 ### starting from the numbers of the politicians, and the dates
-find_district(politicians$`b1-nummer`, "1911-01-14") -> districtstest
+find_district(politicians$`b1-nummer`, "1899-04-01") -> districtstest
 
 district <- districtstest$toelichting
-date <- ymd("1911-01-14")
+date <- ymd("1899-04-01")
 
 ## Derive the electoral information on the basis of these districts
 ## (I can match the politicians on the basis of district-data uniqueness), 
 ## and if I have politicians loaded
-find_eleccontrols <- function(district, date){
+find_eleccontrols <- function(district, date, mindist = 0){
   
   districtfilter <- allelections %>%
     filter(Regio %in% district) %>%
@@ -118,40 +119,30 @@ find_eleccontrols <- function(district, date){
     slice_min(diff) %>%
     mutate(name = str_trim(name))
   
-  ## TODO: Extract the necessary variables from this and merge with generalinfo
-  #And goal: return general info with all these variables:
-  #socialist margin, socialist dummy, nearest competitor margin, amount of votes, total margin, 
-  
-  #Version 1
-  polchars %>%
-    group_by(District) %>%
-    mutate(socialistdum = ifelse(any(grepl("*.?SDAP*.?", Aanbevolen.door)), "1", "0"),
-         socialistpercentage = sum(Percentage[grepl("*.?SDAP*.?", Aanbevolen.door)]),
-         elected = ifelse(
-           grepl(
-             paste(
-               paste("*.?", generalinfo$voorletters, "*.?", generalinfo$achternaam, sep = ""), 
-               collapse = "|"), name), "1", "0"),
-         nearestcompetitormargin = ifelse(Percentage - max(Percentage[elected != "1"]) == Inf,
-                                    0, 
-                                    Percentage - max(Percentage[elected != "1"]))) %>%
-         filter(elected == "1")
-  
-  
   #Version 2 (Denk dat deze beter wordt)
   polchars %>%
     group_by(District) %>%
     mutate(socialistdum = ifelse(any(grepl("*.?SDAP*.?", Aanbevolen.door)), "1", "0"),
-           socialistpercentage = sum(Percentage[grepl("*.?SDAP*.?", Aanbevolen.door)]),
-           elected = ifelse(grepl(paste(generalinfo$achternaam, collapse = "|"), name), "1", "0"),
-           nearestcompetitormargin = ifelse(Percentage - max(Percentage[elected != "1"]) == Inf,
-                                      0, 
-                                      Percentage - max(Percentage[elected != "1"]))) %>%
+           socialistpercentage = sum(Percentage[grepl("*.?SDAP*.?", Aanbevolen.door)])) %>%
     merge(generalinfo %>%
-            select(Regio, `b1-nummer`, voorletters, prepositie, achternaam), by.x = "District", by.y = "Regio") %>%
-    mutate(elec = ain(name, paste(voorletters, prepositie, achternaam), maxDist = 5, method = "lv")) -> test
+            select(Regio, `b1-nummer`, voorletters, prepositie, achternaam), 
+          by.x = "District", 
+          by.y = "Regio") %>%
+    unite("truename", voorletters, prepositie, achternaam, 
+          na.rm = TRUE, sep = " ") %>%
+    mutate(dist = stringsim(name, truename, method = "jaccard")) %>%
+    group_by(District) %>%
+    mutate(elected = ifelse(dist == max(dist), "1", "0"),
+           nearestcompetitormargin = ifelse(Percentage - max(Percentage[elected != "1"]) == Inf,
+                                            0, 
+                                            Percentage - max(Percentage[elected != "1"]))
+           ) %>%
+    slice_max(dist) %>%
+    filter(dist > mindist) %>%
+    select(-elected, -`b1-nummer`)
 
-  
-  ## TO DO: Good string matching... 
+    
+    #socialist margin, socialist dummy, nearest competitor margin, amount of votes, total margin, 
+  #  slice_max(dist)
   
 }

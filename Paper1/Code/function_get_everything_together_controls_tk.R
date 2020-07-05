@@ -7,13 +7,15 @@ library(lubridate)
 library(stringr)
 
 # Functions that we need to match a dataframe with votes, politician's names and their id's to all independent variables:
+# find politician_id(name, date) <- nog maken
 # find_district(polid, date)
 # find_strikes(district, year)
 # find_religion(district, year)
-# find_demographics(datafram  e with $vote, $b1-nummer and $toelichting = district)
-
-# find_econcontrols
+# find_demographics(dataframe with $vote, $b1-nummer and $toelichting = district)
 # find_eleccontrols
+
+# find_econcontrols <- nog maken
+
 
 #From the politician number, find the district
 politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)

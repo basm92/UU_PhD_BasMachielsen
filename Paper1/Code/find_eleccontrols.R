@@ -6,6 +6,7 @@ library(tidyverse)
 library(stringr)
 library(lubridate)
 library(readxl)
+library(stringdist)
 
 ## Read in an elections dataset
 setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1")
@@ -35,7 +36,7 @@ allelections <- b %>%
 
 
 ## Read in the political party and candidates dataset
-politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx")
+politicians3 <- read_excel("./Data/tk_1815tot1950uu.xlsx")
 
 ## Read in the electoral results with parties and names dataset
 files <- dir("./Data")
@@ -101,7 +102,7 @@ find_eleccontrols <- function(district, date, mindist = 0){
    
   generalinfo <- generalinfo %>%
     merge(
-      politicians %>%
+      politicians3 %>%
         select(`b1-nummer`, voorletters, prepositie, achternaam),
       by.x = "b1-nummer",
       by.y = "b1-nummer")
@@ -146,7 +147,7 @@ find_eleccontrols <- function(district, date, mindist = 0){
 
 ### Find the districts for which we want to find electoral information
 ### starting from the numbers of the politicians, and the date
-find_district(politicians$`b1-nummer`, "1905-02-04") -> districtstest
+find_district(politicians3$`b1-nummer`, "1905-02-04") -> districtstest
 ### Correct this vector manually
 districtstest$toelichting <- district
 date <- ymd("1905-02-04")

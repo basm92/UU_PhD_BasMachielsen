@@ -182,23 +182,7 @@ find_religion(c("Amsterdam", "Gulpen"), 1900)
 #find_demographics
 #From the polid, find the demographic control variables
 ## Tenure, age of death, age of entrance, electoral horizon (next election and until pension), party affiliation
-politicians2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
-career2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
 
-career2 <- career2 %>%
-  filter(rubriek == "3010" | rubriek == "3020") %>%
-  dplyr::select(c(1:2, 4)) %>%
-  dplyr::group_split(rubriek)
-  
-together <- merge(politicians2, career2[[1]]) %>%
-  merge(career2[[2]], by = "b1-nummer")
-
-colnames(together)[c(12,14)] <- c("dateofbirth", "dateofdeath")
-
-together <- together %>%
-  janitor::clean_names() %>%
-  as_tibble() %>%
-  mutate(across(contains("periode"), ymd), across(contains("date"), dmy))
 
 
 ## Get the dataset for when the next election was enacted (measuring short-term election cycle)
@@ -212,6 +196,24 @@ source("./Code/aux_which_elections.R")
 #and cleaned its output
 #Then, get the demographic variables
 find_demographics <- function(distrpoliddate) {
+  
+  politicians2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
+  career2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
+  
+  career2 <- career2 %>%
+    filter(rubriek == "3010" | rubriek == "3020") %>%
+    dplyr::select(c(1:2, 4)) %>%
+    dplyr::group_split(rubriek)
+  
+  together <- merge(politicians2, career2[[1]]) %>%
+    merge(career2[[2]], by = "b1-nummer")
+  
+  colnames(together)[c(12,14)] <- c("dateofbirth", "dateofdeath")
+  
+  together <- together %>%
+    janitor::clean_names() %>%
+    as_tibble() %>%
+    mutate(across(contains("periode"), ymd), across(contains("date"), dmy))
   
   date <- ymd(distrpoliddate$date)[1]
   

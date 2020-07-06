@@ -14,10 +14,11 @@ library(stringr)
 # find_demographics(dataframe with $vote, $b1-nummer and $toelichting = district)
 # find_eleccontrols
 
-# find_econcontrols <- nog maken
+# find_econcontrols <- nog maken 
+#From the district and time, find the economic and district-level control variables
+## Some economic variables, education, demographics, professional distribution,
 
 #find_politician_id
-
 
 find_politician_id <- function(names, date) {
   politicians <- readxl::read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
@@ -44,18 +45,18 @@ find_politician_id(names, date)
 
 #find_district
 #From the politician number, find the district
-politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
-career <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
-
-career <- career %>%
-  separate(datum, sep = "/", into = c("from", "to")) %>%
-  mutate(from = dmy(from), to = dmy(to)) %>%
-  filter(grepl("Tweede Kamer", waarde), 
-         from > "1860-01-01", to < "1930-01-01") %>%
-  mutate(toelichting = str_replace(toelichting, "voor het kiesdistrict ", ""))
-
 
 find_district <- function(polid, date){
+  
+  politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
+  career <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
+  
+  career <- career %>%
+    separate(datum, sep = "/", into = c("from", "to")) %>%
+    mutate(from = dmy(from), to = dmy(to)) %>%
+    filter(grepl("Tweede Kamer", waarde), 
+           from > "1860-01-01", to < "1930-01-01") %>%
+    mutate(toelichting = str_replace(toelichting, "voor het kiesdistrict ", ""))
   
   career %>%
     filter(`b1-nummer` %in% polid) %>%
@@ -69,93 +70,37 @@ find_district <- function(polid, date){
 find_district(c("00175", "00557"), "1914-09-17")
 find_district(politicians$`b1-nummer`, "1900-01-01")
 
-# From the district and time, find the electoral variables
-## Nearest socialists, socialist dummy, show-up rate, 
-## nearest competitor, amount of votes, percentage of votes
-
-
-#From the district and time, find the strikes
-## Read in the strikes (municipality level) and clean it
-strikes <- read.csv("./Data/howmuch.csv") %>%
-  filter(JAAR > 1870, JAAR < 1919, GEMEENTE != "", GEMEENTE != "nvt") %>%
-  group_by(JAAR, GEMEENTE, PROVINCIE) %>%
-  summarise(howmuch = sum(howmuch))
-
-## Read in the municipality to district
-municipalities_to_districts <- read.csv("./Data/Municipalities_and_districts.csv") %>%
-  select(-1)
-
-names(municipalities_to_districts) %>%
-  str_replace("X", "") -> names(municipalities_to_districts)
-
-municipalities_to_districts <- municipalities_to_districts %>%
-  pivot_longer(2:5, "year") %>%
-  filter(value == 1) %>%
-  select(-value) %>%
-  mutate(year = as.numeric(year))
-
-## Find the appropriate district for each municipality-year in strikes
-
-find_district <- function(strikesdf) {
-  
-  ## where to look?
-  strikesdf$temp <- ifelse(strikesdf$JAAR < 1848, 
-         1848, 
-         ifelse(
-           between(strikesdf$JAAR, 1848, 1850),
-           1848,
-           ifelse(between(strikesdf$JAAR, 1850, 1888),
-                  1850,
-                  ifelse(between(strikesdf$JAAR, 1888, 1897),
-                         1888, 
-                         1897)
-           )
-         )
-  )
-  
-  df <- left_join(strikesdf, municipalities_to_districts, 
-                  by = c("GEMEENTE" = "gemeente", "temp" = "year"))
-  df
-  
-}
-
-## Manually edit most important NA's:
-## Amsterdam Rotterdam, Utrecht, Den Haag, Tilburg, Almelo, Deventer
-find_district(strikes) -> strikespd
-
-strikespd <- strikespd %>%
-  ungroup() %>%
-  mutate(GEMEENTE = as.character(GEMEENTE), district = as.character(district))
-
-changes <- c("Amsterdam", "Utrecht", "Rotterdam", "Den Haag", "Almelo", "Deventer")
-
-strikespd[is.na(strikespd$district) & strikespd$GEMEENTE %in% changes,]$district <- strikespd[is.na(strikespd$district) & strikespd$GEMEENTE %in% changes,]$GEMEENTE
+#find_strikes
 
 ## Aggregate per district-year
-find_strikes <- function(district, year) {
+find_strikes <- function(districts = NULL, year) {
+  strikespd <- read.csv("./Data/strikesperdistrict.csv") %>%
+    select(-1) %>%
+    na.omit()
   
+  if(!is.null(districts)){
   strikespd %>%
-  group_by(district, JAAR) %>%
-  summarise(amount = sum(howmuch)) %>%
-    filter(district == district, JAAR == year)
+    group_by(district, JAAR) %>%
+    summarise(amount = sum(howmuch)) %>%
+      filter(district == districts, JAAR == year)
+  }
+  else {
+    strikespd %>%
+      group_by(district, JAAR) %>%
+      summarise(amount = sum(howmuch)) %>%
+      filter(JAAR == year)
+  }
   
 }
 
-#From the district and time, find the economic and district-level control variables
-## Some economic variables, education, demographics, professional distribution, religion, etc. 
-
-
-
-## Religion on a district level
+# find_religion
+#Religion on a district level
 ## Dataset religion and inhabitants per district
-religion <- read.csv("./Data/Religion_inhabitants_per_district.csv") %>%
-  select(-1)
-
-
-district <- c("Gulpen")
-year <- 1895
 
 find_religion <- function(district, year, append = TRUE) {
+  
+  religion <- read.csv("./Data/Religion_inhabitants_per_district.csv") %>%
+    select(-1)
   
   distance <- min(abs(unique(religion$jaar) - year))# %>%
   check <- (year + distance) %in% unique(religion$jaar)
@@ -230,9 +175,11 @@ find_religion <- function(district, year, append = TRUE) {
 }
 
 ## Example
+find_religion("Gulpen", 1895)
 find_religion(c("Amsterdam", "Gulpen"), 1900)
 
 
+#find_demographics
 #From the polid, find the demographic control variables
 ## Tenure, age of death, age of entrance, electoral horizon (next election and until pension), party affiliation
 politicians2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
@@ -256,46 +203,10 @@ together <- together %>%
 
 ## Get the dataset for when the next election was enacted (measuring short-term election cycle)
 
-### Specifiy the district, polid, and date in distrpoliddate 
-polid <- c("00001", "00034")
-find_district(polid, "1910-01-01") -> distrpoliddate
-cbind(distrpoliddate, date = ymd("1910-01-01"))-> distrpoliddate
-
-distrpoliddate[2,2] <- "Tilburg"
 ### This is an auxiliary Function: Load elections, and filter to the following information: 
 ### number, district, days to next election in that district
 ### To be used within find_demographcis
-
-which_elections <- function(distrpoliddate) {
-  
-  #Read in all elections
-  elections <- read.csv("./Data/allelections.csv") %>%
-      janitor::clean_names() %>%
-      as_tibble() %>%
-    mutate(across(c(dag,maand,jaar), as.numeric)) %>%
-    unite("date", 2:4, sep = "-") %>%
-    mutate(date = dmy(date))
-
-### Filter it for the right elections (closest to the date of interest, and in the future)
-  elections <- elections %>%
-    filter(district %in% distrpoliddate$toelichting) %>%
-    mutate(diff = date - distrpoliddate$date) %>%
-    group_by(district) %>%
-    filter(diff > 0) %>%
-    slice(which.min(abs(diff))) ## TODO: merge this dataset with the b1_nummer (otherwise unmergeable)
-
-  elections <- merge(elections, distrpoliddate, 
-                     by.x = "district", 
-                     by.y = "toelichting") %>%
-    select(`b1-nummer`, district, diff) %>%
-    rename(days_to_next_el = diff)
-  
-  elections 
-  
-}
-
-## Example: 
-which_elections(distrpoliddate)
+source("./Code/aux_which_elections.R")
 
 #Before running this, make sure you have run the two lines with distrpoliddate
 #and cleaned its output
@@ -306,7 +217,7 @@ find_demographics <- function(distrpoliddate) {
   
   data <- together %>%
     filter(b1_nummer %in% distrpoliddate$`b1-nummer`) %>%
-    mutate(tenure = einde_periode - begin_periode,
+    mutate(tenure = date - begin_periode,
            age_of_death = dateofdeath-dateofbirth,
            age_of_entrance = begin_periode - dateofbirth,
            age_of_vote = date - dateofbirth,
@@ -341,11 +252,11 @@ find_district(polid, date) -> example
 example <- cbind(example, date)
 example[2,2] <- "Tilburg"
 
-find_demographics(example) -> test
+find_demographics(example)
 
 
+#find_wealth
 #From the polid, find the wealth
-
 ##From the wealth and vote date, compute the wealth back in time
 
 

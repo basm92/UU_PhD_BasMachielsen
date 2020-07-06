@@ -23,7 +23,7 @@ library(stringr)
 
 
 #find_politician_id(names, date)
-##source()
+source("./Code/find_politician_id.R")
 date <- ymd("1880-01-01")
 names <- c("Godefroi","Idzerda", "Bieberstein")
 
@@ -34,31 +34,48 @@ source("./Code/find_district.R")
 
 politicians <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 1)
 find_district(c("00175", "00557"), "1914-09-17")
-find_district(politicians$`b1-nummer`, "1900-01-01")
 find_district(politicians$`b1-nummer`, "1880-01-01")
+find_district(politicians$`b1-nummer`, "1905-06-23")
 
 
 #find_strikes(districts, year)
+source("./Code/find_strikes.R")
+
 find_strikes(c("Hontenisse", "Rotterdam", "Almelo", "Amsterdam"), 1900)
 
 #find_religion
+source("./Code/find_religion.R")
+
 find_religion("Gulpen", 1895)
 find_religion(c("Amsterdam", "Gulpen"), 1900)
 
-#find_demographics
-## You have to call the arguments date, b1-nummer and toelichting
-date <- ymd("1910-01-01")
+#find_demographics(distrpoliddate)
+source("./Code/find_demographics.R")
+
+## You have to give a function call to find_demographics using a data frame
+## The data frame should have the variables b1-nummer, toelichting and date
+mijnjaar <- ymd("1888-01-01")
 polid <- politicians$`b1-nummer`
 
-find_district(polid, date)
-example <- cbind(example, date)
-example[2,2] <- "Tilburg"
+find_district(polid, mijnjaar) -> example
+example <- cbind(example, date = mijnjaar)
+#example[3,2] <- "Tilburg"
 #Before running this, make sure you have run the two lines with distrpoliddate
 #and cleaned its output
 find_demographics(example)
 
-#find_eleccontrols
+#find_eleccontrols(district, date, mindist)
+## mindist is a kind of strictness parameter
+source("./Code/find_eleccontrols.R")
 
+find_district(politicians3$`b1-nummer`, "1905-02-04") -> districtstest
+### Correct this vector manually
+districtstest$toelichting <- district
+date <- ymd("1905-02-04")
+
+find_eleccontrols(districtstest$toelichting, date)
 
 #find_econcontrols
+
+#find_wealth
 

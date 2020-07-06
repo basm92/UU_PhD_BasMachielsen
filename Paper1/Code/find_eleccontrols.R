@@ -48,7 +48,6 @@ for(i in allcandidates) {
   a <- read_csv(paste("./Data/", i, sep = ""),locale = readr::locale(encoding = "latin1"))
   colnames(a) <- c("X1", "District", "Aanbevolen.door", "Aantal.stemmen", "Percentage", "V5")
   b <- rbind(b, a)
-  print(i)
 }
 
 allcandidates <- b %>%
@@ -145,11 +144,3 @@ find_eleccontrols <- function(district, date, mindist = 0){
 
 ## Example: 
 
-### Find the districts for which we want to find electoral information
-### starting from the numbers of the politicians, and the date
-find_district(politicians3$`b1-nummer`, "1905-02-04") -> districtstest
-### Correct this vector manually
-districtstest$toelichting <- district
-date <- ymd("1905-02-04")
-
-find_eleccontrols(districtstest$toelichting, date)

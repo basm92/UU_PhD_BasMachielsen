@@ -16,7 +16,7 @@ find_demographics <- function(distrpoliddate) {
   career2 <- read_excel("./Data/tk_1815tot1950uu.xlsx", sheet = 2)
   
   career2 <- career2 %>%
-    filter(rubriek == "3010" | rubriek == "3020") %>%
+    filter(rubriek == "3010" |rubriek == "3020") %>%
     dplyr::select(c(1:2, 4)) %>%
     dplyr::group_split(rubriek)
   

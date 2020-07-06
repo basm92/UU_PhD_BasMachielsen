@@ -7,7 +7,7 @@ library(stringr)
 library(lubridate)
 library(readxl)
 
-### Read in an elections dataset
+## Read in an elections dataset
 setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1")
 files <- dir("./Data")
 allelections <- files[grepl("Uitslag_TK", files)]
@@ -64,16 +64,11 @@ allcandidates <- b %>%
          Aantal.stemmen = as.numeric(Aantal.stemmen),
          Date = dmy(Date))
 
-### Find the districts for which we want to find electoral information
-### starting from the numbers of the politicians, and the dates
-find_district(politicians$`b1-nummer`, "1899-04-01") -> districtstest
-
-district <- districtstest$toelichting
-date <- ymd("1899-04-01")
-
 ## Derive the electoral information on the basis of these districts
 ## (I can match the politicians on the basis of district-data uniqueness), 
 ## and if I have politicians loaded
+## Put the corrected vector in districtstest$toelichting! 
+
 find_eleccontrols <- function(district, date, mindist = 0){
   
   districtfilter <- allelections %>%
@@ -119,7 +114,7 @@ find_eleccontrols <- function(district, date, mindist = 0){
     slice_min(diff) %>%
     mutate(name = str_trim(name))
   
-  #Version 2 (Denk dat deze beter wordt)
+  
   polchars %>%
     group_by(District) %>%
     mutate(socialistdum = ifelse(any(grepl("*.?SDAP*.?", Aanbevolen.door)), "1", "0"),
@@ -130,7 +125,7 @@ find_eleccontrols <- function(district, date, mindist = 0){
           by.y = "Regio") %>%
     unite("truename", voorletters, prepositie, achternaam, 
           na.rm = TRUE, sep = " ") %>%
-    mutate(dist = stringsim(name, truename, method = "jaccard")) %>%
+    mutate(dist = stringdist::stringsim(name, truename, method = "jaccard")) %>%
     group_by(District) %>%
     mutate(elected = ifelse(dist == max(dist), "1", "0"),
            nearestcompetitormargin = ifelse(Percentage - max(Percentage[elected != "1"]) == Inf,
@@ -146,3 +141,14 @@ find_eleccontrols <- function(district, date, mindist = 0){
   #  slice_max(dist)
   
 }
+
+## Example: 
+
+### Find the districts for which we want to find electoral information
+### starting from the numbers of the politicians, and the date
+find_district(politicians$`b1-nummer`, "1905-02-04") -> districtstest
+### Correct this vector manually
+districtstest$toelichting <- district
+date <- ymd("1905-02-04")
+
+find_eleccontrols(districtstest$toelichting, date)

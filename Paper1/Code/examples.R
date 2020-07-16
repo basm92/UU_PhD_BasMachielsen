@@ -8,11 +8,12 @@
 # find_strikes(district, year)
 # find_religion(district, year)
 # find_demographics(dataframe with $vote, $b1-nummer and $toelichting = district)
-# find_eleccontrols
+# find_eleccontrols(district, year)
 
 # find_econcontrols <- nog maken 
 # From the district and time, find the economic and district-level control variables
 # Some economic variables, education, demographics, professional distribution,
+# find_wealth <- nog maken
 
 setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1")
 

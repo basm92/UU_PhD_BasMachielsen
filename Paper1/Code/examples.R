@@ -9,13 +9,16 @@
 # find_religion(district, year)
 # find_demographics(dataframe with $vote, $b1-nummer and $toelichting = district)
 # find_eleccontrols(district, year)
-
-# find_econcontrols <- nog maken 
+# find_econcontrols <- (district, year)
 # From the district and time, find the economic and district-level control variables
 # Some economic variables, education, demographics, professional distribution,
 # find_wealth <- nog maken
 
-setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1")
+if(Sys.info()[[8]] == "bas"){
+    setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1")
+}else{
+    setwd("/Users/basmachielsen/Documents/git/UU_PhD_BasMachielsen/Paper1")
+    }
 
 library(readxl)
 library(tidyverse)
@@ -76,7 +79,12 @@ date <- ymd("1905-02-04")
 
 find_eleccontrols(districtstest$toelichting, date)
 
-#find_econcontrols
+#find_econcontrols(district, year)
+source("./Code/find_econcontrols.R")
 
+thedis <- find_district(politicians$`b1-nummer`, "1872-05-01")
+
+find_econcontrols(thedis$toelichting, 1872)
 #find_wealth
+
 

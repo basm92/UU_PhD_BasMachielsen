@@ -2,17 +2,15 @@
 
 library(hdng)
 
-hdng::hdng_names_cats("Welvaart", from = 1879, to = 1933)
-
-
 #First, find the appropriate variables
 
 #Welvaart
-#agpb = share of municipality in taxes
-#prbd = share of hoogstaangeslagenen as a percentage of beroepsbevolking
+##agpb = share of municipality in total taxes
+##prbd = share of hoogstaangeslagenen as a percentage of beroepsbevolking
 econdata <- hdng::hdng_get_data(c("agpb", "prbd"), col.names = T)
-#Still need to find out the scale of these variables, but other than that, 
-#they're ready for us
+##Still need to find out the scale of these variables, but other than that, 
+##they're ready for use
+write.csv(econdata, "./Data/econ_controls_1.csv", row.names = F)
 
 #Beroepen
 ## Extract all variables
@@ -27,16 +25,55 @@ econdata2 <- hdng_get_data(vars, col.names = T) %>%
 
 detach("package:hdng", unload = TRUE)
 
-## Now add the different measurements into one variable
-econdata2 %>%
-    group_by(naam, year) %>%
-    summarise(across(contains("Aardewerk"), ))
+## Now add the different measurements into variables of several categories
+
+### Services
+### Agriculture and Fishery
+### Industry
+
+econdata2 <- econdata2 %>%
+    group_by(naam, year, cbsnr, acode) %>%
+    summarise(industry = rowSums(across(matches(c("Aardewerk.+Pos", 
+                                                   "Bouwbedrijven.+Pos", 
+                                                   "Chemisch.+Pos",
+                                                   "Diamant.+Pos",
+                                                   "Hout.+Pos",
+                                                   "Textiel.+Pos",
+                                                   "Kunstnijverheid.+Pos",
+                                                   "Leder.+Pos",
+                                                   "Metaalbewerking.+Pos"
+                                                   ))), 
+                                 na.rm = T),
+              services = rowSums(across(matches(c("Drukkersbedrijven.+Pos",
+                                                   "Huiselijke diensten",
+                                                   "Godsdienst",
+                                                   "Kleding.+Pos",
+                                                   "Onderwijs",
+                                                   "Verkeer.+Pos",
+                                                   "Voedings-.+Pos",
+                                                   "Verzekering.+Pos",
+                                                   "Handel.+Pos",
+                                                   "Krediet.+Pos",
+                                                   "Papier.+Pos",
+                                                  "Vrije Beroepen"
+                                                   ))),
+                                 na.rm = T),
+              agricul = rowSums(across(matches(c("Visserij.+Pos",
+                                                  "Landbouw.+Pos"))),
+                                na.rm = T),
+              total = rowSums(across(c(industry, services, agricul))),
+              across(c(industry, services, agricul), ~ . / total, .names = "{col}_share"))
+
+
+## Education
+##hdng::hdng_names_cats("Onderwijs", from = 1870, to = 1891)
+##hdng_get_data("uilo")
 
 # Now the function using these two datasets
 
 find_econcontrols <- function(district, year){
     
-    
+    #Find closest available year in each dataset
     
 }
 

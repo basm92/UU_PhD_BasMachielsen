@@ -8,6 +8,11 @@ library(hdng)
 ##agpb = share of municipality in total taxes
 ##prbd = share of hoogstaangeslagenen as a percentage of beroepsbevolking
 econdata <- hdng::hdng_get_data(c("agpb", "prbd"), col.names = T)
+
+econdata$naam <- plyr::mapvalues(econdata$naam, 
+                c("'S HERTOGENBOSCH", "'S GRAVENHAGE"), 
+                c("'S-HERTOGENBOSCH", "'S-GRAVENHAGE")
+                )
 ##Still need to find out the scale of these variables, but other than that, 
 ##they're ready for use
 write.csv(econdata, "./Data/econ_controls_1.csv", row.names = F)
@@ -63,6 +68,11 @@ econdata2 <- econdata2 %>%
                                 na.rm = T),
               total = rowSums(across(c(industry, services, agricul))),
               across(c(industry, services, agricul), ~ . / total, .names = "{col}_share"))
+
+econdata2$naam <- plyr::mapvalues(econdata2$naam, 
+                                 c("'S HERTOGENBOSCH", "'S GRAVENHAGE"), 
+                                 c("'S-HERTOGENBOSCH", "'S-GRAVENHAGE")
+)
 
 write.csv(econdata2, "./Data/econ_controls_2.csv", row.names = F)
 

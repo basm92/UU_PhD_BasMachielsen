@@ -85,6 +85,11 @@ source("./Code/find_econcontrols.R")
 thedis <- find_district(politicians$`b1-nummer`, "1872-05-01")
 
 find_econcontrols(thedis$toelichting, 1872)
-#find_wealth
 
+
+#find_wealth(polid, votedate)
+source("./Code/find_wealth.R")
+hoi <- find_district(politicians$`b1-nummer`, "1905-06-23") -> hoi
+
+find_wealth(hoi$`b1-nummer`, "1905-11-02")
 

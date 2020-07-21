@@ -79,7 +79,7 @@ find_wealth <- function(polid, votedatum) {
         rowwise() %>%
         mutate(diff = list(
             seq(
-                from = as.integer(str_extract(votedatum, "\\d{4}")), 
+                from = as.integer(str_extract(votedatum, "\\d{4}")), # Here is the difference between date and death
                 to = dateofdeath)
             )
             ) #This gives me a list of years for each b1_number
@@ -103,15 +103,32 @@ find_wealth <- function(polid, votedatum) {
     
     ## Finally, compute the net return on the portfolio using the composition variables
     ## Use compound interest exp^-(previously calculated sum) to calculate back in time to the vote
-    
+    ## Use NW0 to find the value
+    portfolio <- portfolio %>%
+        ungroup() %>%
+        mutate(re_v =  xshare_Re * NW0 * exp(-dutch_re_ret),
+               dubo_v = xshare_Dugobo * NW0 * exp(-dutch_bond_ret),
+               duprbo_v = xshare_Duprbo * NW0 * exp(-dutch_prbond_ret),
+               dush_v = xshare_Dush * NW0 * exp(-dutch_sh_ret),
+               fobo_v = xshare_Fogobo * NW0 * exp(-foreign_bond_ret),
+               foprbo_v = xshare_Foprbo * NW0 * exp(-foreign_prbond_ret),
+               fosh_v = xshare_Fosh * NW0 * exp(-foreign_shares_ret),
+               cash_v = xshare_Cash * NW0,
+               misc_v = xshare_Misc * NW0, 
+               wealth_timevote = rowSums(across(ends_with("_v"), na.rm = T))
+        )
     
     ## Select the variables which I want in the analysis, rename Indexnummer to b1_nummer
-    
+    portfolio %>%
+        rename("b1_nummer" = Indexnummer) %>%
+        select(b1_nummer, 
+               NW0, 
+               W_DEFLATED, 
+               TA0, 
+               TL0, 
+               starts_with("share_"), 
+               starts_with("xshare_"),
+               wealth_timevote)
 }
 
-
-#Check
-foreign %>%
-    pivot_longer(2:4) %>%
-    ggplot(aes(x = year, y = value, group = name, color = name)) + geom_line()
 

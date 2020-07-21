@@ -5,8 +5,12 @@
 
 find_religion <- function(district, year, append = TRUE) {
   
+  year <- as.numeric(str_extract(year, "\\d{4}"))
+  
   religion <- read.csv("./Data/Religion_inhabitants_per_district.csv") %>%
-    select(-1)
+    select(-1) %>%
+    mutate(districtname = str_replace_all(districtname, "Den Haag", "'s-Gravenhage"),
+           districtname = str_replace_all(districtname, "Den Bosch", "'s-Hertogenbosch"))
   
   distance <- min(abs(unique(religion$jaar) - year))# %>%
   check <- (year + distance) %in% unique(religion$jaar)

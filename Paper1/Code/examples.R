@@ -28,7 +28,7 @@ library(stringr)
 
 #find_politician_id(names, date)
 source("./Code/find_politician_id.R")
-date <- ymd("1880-01-01")
+date <- "1880-01-01"
 names <- c("Godefroi","Idzerda", "Bieberstein")
 
 find_politician_id(names, date)
@@ -47,7 +47,7 @@ source("./Code/find_strikes.R")
 
 find_strikes(c("Hontenisse", "Rotterdam", "Almelo", "Amsterdam"), 1900)
 
-#find_religion
+#find_religion(distr, year)
 source("./Code/find_religion.R")
 
 find_religion("Gulpen", 1895)
@@ -57,7 +57,7 @@ find_religion(c("Amsterdam", "Gulpen"), 1900)
 source("./Code/find_demographics.R")
 
 ## You have to give a function call to find_demographics using a data frame
-## The data frame should have the variables b1-nummer, toelichting and date
+## The data frame should have the variables b1-nummer, toelichting (district) and date
 mijnjaar <- ymd("1888-01-01")
 polid <- politicians$`b1-nummer`
 
@@ -72,12 +72,10 @@ find_demographics(example)
 ## mindist is a kind of strictness parameter
 source("./Code/find_eleccontrols.R")
 
-find_district(politicians3$`b1-nummer`, "1905-02-04") -> districtstest
 ### Correct this vector manually
-districtstest$toelichting <- district
-date <- ymd("1905-02-04")
+date <- "1905-02-04"
 
-find_eleccontrols(districtstest$toelichting, date)
+find_eleccontrols(dataframewithpolidanddistr, date)
 
 #find_econcontrols(district, year)
 source("./Code/find_econcontrols.R")

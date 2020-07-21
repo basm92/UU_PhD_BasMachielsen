@@ -23,7 +23,7 @@ find_demographics <- function(distrpoliddate) {
   together <- merge(politicians2, career2[[1]]) %>%
     merge(career2[[2]], by = "b1-nummer")
   
-  colnames(together)[c(12,14)] <- c("dateofbirth", "dateofdeath")
+  colnames(together)[c(1,12,14)] <- c("b1_nummer", "dateofbirth", "dateofdeath")
   
   together <- together %>%
     janitor::clean_names() %>%
@@ -33,7 +33,7 @@ find_demographics <- function(distrpoliddate) {
   date <- ymd(distrpoliddate$date)[1]
   
   data <- together %>%
-    filter(b1_nummer %in% distrpoliddate$`b1-nummer`) %>%
+    filter(b1_nummer %in% distrpoliddate$b1_nummer) %>%
     mutate(tenure = date - begin_periode,
            age_of_death = dateofdeath-dateofbirth,
            age_of_entrance = begin_periode - dateofbirth,
@@ -45,7 +45,7 @@ find_demographics <- function(distrpoliddate) {
   temp <- which_elections(distrpoliddate)
   data <- merge(data, temp, 
                 by.x = "b1_nummer", 
-                by.y = "b1-nummer")
+                by.y = "b1_nummer")
   
   ## A conversion table for party affiliation (so i can create that variable)
   temp <- read.csv("./Data/key_politicalparty_category.csv") %>%
@@ -56,5 +56,6 @@ find_demographics <- function(distrpoliddate) {
   merge(data, temp,
         by.x = "partij_en_fractie_s",
         by.y = "partys") %>%
+    distinct() %>%
     as_tibble()
 }

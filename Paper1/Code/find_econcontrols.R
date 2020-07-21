@@ -1,8 +1,10 @@
 #find_econcontrols(district, year)
 # Now the function using these two datasets
 
-find_econcontrols <- function(district, yearinput, absrel = "both"){
+find_econcontrols <- function(district, datum, absrel = "both"){
     
+    #Extract the year from the string date input
+    yearinput <- as.integer(str_extract(datum, "\\d{4}"))
     #Read in the data
     econdata <- read.csv("./Data/econ_controls_1.csv")
     econdata2 <- read.csv("./Data/econ_controls_2.csv")

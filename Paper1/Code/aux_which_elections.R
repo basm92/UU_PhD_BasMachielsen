@@ -8,6 +8,8 @@ which_elections <- function(distrpoliddate) {
     unite("date", 2:4, sep = "-") %>%
     mutate(date = dmy(date))
   
+  # Make an actual date from distrpoliddate$date:
+  distrpoliddate$date <- lubridate::ymd(distrpoliddate$date)
   ### Filter it for the right elections (closest to the date of interest, and in the future)
   elections <- elections %>%
     filter(district %in% distrpoliddate$toelichting) %>%
@@ -19,7 +21,7 @@ which_elections <- function(distrpoliddate) {
   elections <- merge(elections, distrpoliddate, 
                      by.x = "district", 
                      by.y = "toelichting") %>%
-    select(`b1-nummer`, district, diff) %>%
+    select(b1_nummer, district, diff) %>%
     rename(days_to_next_el = diff)
   
   elections 

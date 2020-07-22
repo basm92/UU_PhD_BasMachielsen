@@ -48,3 +48,5 @@ vote <- rep(0, length(politician))
 kieswet1896 <- rbind(kieswet1896, 
                          cbind(politician, 
                                vote))
+
+kieswet1896 <- cbind(kieswet1896, law = "Kieswet 1896", date = "1896-06-19")

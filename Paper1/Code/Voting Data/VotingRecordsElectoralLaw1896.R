@@ -13,8 +13,8 @@ kieswet1896 <- data.frame(politician = c(
     "van Delden", "Bouman", "van Gennep", 
     "Hesselink van Suchtelen", "Pijnacker Hordijk",
     "Borret", "Lieftinck", "Veegens", "Heldt", 
-    "Farncombe Sanders", "Harte", "Lambrechts", 
-    "Vos de Wael", "d'Ansembourg", "Goeman Borgesius",
+    "Farncombe Sanders", "Harte van Tecklenburg", "Lambrechts", 
+    "Vos de Wael", "Marchant et d'Ansembourg", "Goeman Borgesius",
     "de Beaufort", #De Beaufort Wijk bij duurstede
     "Smeenge", "Bahlmann", "Hartogh", "van Basten Batenburg", 
     "Mees", "Ferf", "de Beaufort", #de Beaufort Amsterdam

@@ -29,7 +29,8 @@ find_econcontrols <- function(district, datum, absrel = "both"){
     query2 <- econdata2 %>%
         group_by(naam) %>%
         slice_min(abs(yearinput - year)) %>%
-        filter(tolower(naam) %in% tolower(district)) 
+        filter(tolower(naam) %in% tolower(district)) %>%
+        filter(year == min(year))
     
     colnames(query2)[2] <- "year_eccontrls2"
     

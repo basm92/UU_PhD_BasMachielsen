@@ -43,9 +43,10 @@ find_demographics <- function(distrpoliddate) {
   
   #Merge the dataset with the election with the data set here ^^
   temp <- which_elections(distrpoliddate)
-  data <- merge(data, temp, 
-                by.x = "b1_nummer", 
-                by.y = "b1_nummer")
+  data <- left_join(data, temp, 
+                by = c ("b1_nummer" = "b1_nummer")
+  ) %>%
+    distinct()
   
   ## A conversion table for party affiliation (so i can create that variable)
   temp <- read.csv("./Data/key_politicalparty_category.csv") %>%
@@ -53,9 +54,8 @@ find_demographics <- function(distrpoliddate) {
     rename(polparty=class)
   
   ## Merge this variable in the results, and finalize the output
-  merge(data, temp,
-        by.x = "partij_en_fractie_s",
-        by.y = "partys") %>%
+  left_join(data, temp,
+        by = c("partij_en_fractie_s" = "partys")) %>%
     distinct() %>%
     as_tibble()
 }

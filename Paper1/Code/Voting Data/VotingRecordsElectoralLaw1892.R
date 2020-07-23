@@ -23,7 +23,7 @@ kieswet1892 <- kieswet1892 %>%
 ## No votes
 politician <- c(
   "van Gijn", "van Houten", "Geertsema", 
-  "Schimmelpenninck van der Oye", "d'Ansembourg",
+  "Schimmelpenninck van der Oye", "Marchant et d'Ansembourg",
   "Guyot", "A. van Dedem", "van Alphen", 
   "Bevers", "Everts", "de Ras", "van den Berch van Heemstede",
   "Conrad", "P.G.J. Schrieck", "T. Mackay", "L.D.J.L. Ram",

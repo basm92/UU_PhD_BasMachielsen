@@ -1,5 +1,5 @@
-#Dividendbelasting 1917, TK
-
+#Staatsschuldwet 1914, TK
+#tegen is de progressieve positie
 #voor
 
 staatsschuldwet1914 <- data.frame(
@@ -70,7 +70,7 @@ staatsschuldwet1914 <- data.frame(
   mutate(politician = stringr::str_trim(politician))
 
 staatsschuldwet1914 <- staatsschuldwet1914 %>%
-  mutate(vote = rep(1, length(staatsschuldwet1914$politician)))
+  mutate(vote = rep(0, length(staatsschuldwet1914$politician)))
 
 
 politician <- c(
@@ -102,7 +102,7 @@ politician <- c(
 ) %>%
   stringr::str_trim()
 
-vote <- rep(0, length(politician))
+vote <- rep(1, length(politician))
 
 staatsschuldwet1914 <- rbind(staatsschuldwet1914, cbind(politician, vote)) %>%
   mutate(law = "Staatsschuldwet 1914", date = "1914-12-11")

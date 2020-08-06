@@ -29,7 +29,7 @@ politician <- c("W.K.F.P. van Bylandt"," Schimmelpenninck","
                  van Limburg Stirum") %>%
     stringr::str_squish()
 
-vote <- rep(0, length(politicians))
+vote <- rep(0, length(politician))
 
 woningwet1901 <- rbind(woningwet1901, cbind(politician, vote)) %>%
     mutate(law = "Woningwet 1901", date = "1901-04-19")

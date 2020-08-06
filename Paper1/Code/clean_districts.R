@@ -59,9 +59,9 @@ clean_districts <- function(district, datum) {
     
     whichones
   }
- 
+  # add goed and easybad together
   temp <- coalesce(goed, easybad) 
-  
+  # clean hardbad2corrected
   hardbad2corrected <- vector(length = length(hardbad2))
   
   for(i in 1:length(hardbad2)){
@@ -74,7 +74,7 @@ clean_districts <- function(district, datum) {
     str_remove("voor het kiesdistrict") %>%
     str_remove_all(":|\\(|\\)") %>%
     str_trim()
-  
+  # add temp and hardbad2corrected 
   coalesce(temp, hardbad2corrected)
 }
 

@@ -3,14 +3,14 @@
 wetouderdominvaliditeit1913 <- data.frame(politician = c("
      Jansen"," van Hamel"," Drucker"," Roodhuyzen"," Helsdingen"," van Foreest"," 
      Verhey"," Vorsterman van Oijen"," de Beaufort"," Eland"," 
-     Schaper"," Duys"," Troelstra"," Teenstra"," Jannink"," ter Laan"," 
+     Schaper"," Duijs"," Troelstra"," Teenstra"," Jannink"," ter Laan"," 
      Treub"," de Meester"," Limburg"," Smeenge"," Smidt"," van Karnebeek"," 
      Dolk"," Rink"," de Jongh"," Vliegen"," Lieftinck"," 
      Marchant"," de Kanter"," de Klerk"," Bos"," Patijn"," 
      Goeman Borgesius"," Hugenholtz"," Tydema ")) %>%
     mutate(politician = stringr::str_squish(politician), vote = rep(1, length(politician)))
 
-politician <- c("Arts"," Bolsius"," Ruys de Beercnbrouck"," van Best"," 
+politician <- c("Arts"," Bolsius"," Ruys de Beerenbrouck"," van Best"," 
             Scheurer"," Duynstee"," van Lennep"," Passtoors"," 
             Duymaer van Twist"," van Vuuren"," Snoeck Henkemans"," 
             van Vlijmen"," Rutgers"," van Bylandt"," de Geer"," Oosterbaan"," 
@@ -23,7 +23,7 @@ politician <- c("Arts"," Bolsius"," Ruys de Beercnbrouck"," van Best","
             van der Borch van Verwolde"," 
             J.W.J.C.M. van Nispen tot Sevenaer"," Bogaardt"," Fleskens"," van den Berch van Heemstede"," 
             de Vlugt"," Pollema"," van Sasse van Ysselt"," Schimmelpenninck"," 
-            van der Voort van Zijp"," Aukennan"," Middelberg"," 
+            van der Voort van Zijp"," Ankerman"," Middelberg"," 
             Janssen"," Loeff"," Beckers"," van Wichen",
                 " van Wijnbergen"," O.F.A.M. van Nispen tot Sevenaer") %>%
     stringr::str_squish()

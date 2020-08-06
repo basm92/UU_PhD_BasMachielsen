@@ -12,7 +12,7 @@ leerplichtwet1901 <- data.frame(politician = c("Lieftinck"," Van Gijn"," Groen v
                                 Van Gilse"," Roessingh"," Verhey"," Ketelaar"," 
                                 Nolting"," Meesters"," Hesselink van Suchtelen"," Gleichman
                                 ")) %>%
-    mutate(politician = stringr::str_squish(politicians), vote = rep(1, length(politicians)))
+    mutate(politician = stringr::str_squish(politician), vote = rep(1, length(politician)))
 
 
 politician <- c("Van Basten Batenburg"," 

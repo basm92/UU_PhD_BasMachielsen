@@ -48,4 +48,4 @@ kieswet1887 <- rbind(kieswet1887,
                                vote))
 
 kieswet1887 <- kieswet1887 %>%
-    mutate(law = "Kiesrecht 1887", date = "1887-03-23")
+    mutate(law = "Kieswet 1887", date = "1887-03-23")

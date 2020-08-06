@@ -4,7 +4,7 @@ source("./Code/find_district.R")
 source("./Code/get_all_variables.R")
 
 #Voting law 1872
-source("./Code/Voting Data/VotingRecordsElectoralLaw1872.R")
+source("./Code/Voting Data/Lower House/Electoral Law/VotingRecordsElectoralLaw1872.R")
 
 id <- find_politician_id(kieswet1872$politician, kieswet1872$date[1])
 voting_outcomes <- left_join(kieswet1872, id, by = c("politician" = "names"))
@@ -226,7 +226,7 @@ modelsuccessiewet1911 <- broom::tidy(modelsuccessiewet1911) %>%
     cbind(law = b, n = a , n_voted = n_voted)
 
 
-source("./Code/Voting Data/VotingRecordsInkomstenbelasting1914.R")
+source("./Code/Voting Data/Lower House/Taxes/VotingRecordsInkomstenbelasting1914.R")
 
 id <- find_politician_id(inkomstenbelasting1914$politician, inkomstenbelasting1914$date[1])
 voting_outcomes <- left_join(inkomstenbelasting1914, id, by = c("politician" = "names"))
@@ -273,7 +273,7 @@ modelinkomstenbelasting1914 <- broom::tidy(modelinkomstenbelasting1914) %>%
 
 
 ## Successiewet 1916
-source("./Code/Voting Data/VotingRecordsSuccessiewet1916.R")
+source("./Code/Voting Data/Lower House/Taxes/VotingRecordsSuccessiewet1916.R")
 
 id <- find_politician_id(successiewet1916$politician, successiewet1916$date[1])
 voting_outcomes <- left_join(successiewet1916, id, by = c("politician" = "names"))

@@ -3,7 +3,7 @@
 #voor
 
 successiewet1911 <- data.frame(politician = c("Elhorst","  
-                                              O.F.A.M. van Nispen tot Seveuaer"," 
+                                              O.F.A.M. van Nispen tot Sevenaer"," 
                                               ter Laan"," Patijn"," 
 de Monte verLoren"," Ketelaar"," van Hamel"," Ferf"," Dolk"," 
 Schaper"," Aalberse"," Rink"," Vliegen"," Snoeck Henkemans"," 

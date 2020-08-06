@@ -38,7 +38,7 @@ find_eleccontrols <- function(datafreem, date, mindist = 0){
   generalinfo <- elecinfo %>%
     filter(RegioUitslag == "Kiesgerechtigden" | RegioUitslag == "Opkomst") %>%
     select(Regio, RegioUitslag, AantalStemmen, side) %>%
-    pivot_wider(names_from = RegioUitslag, values_from = AantalStemmen) %>%
+    pivot_wider(names_from = RegioUitslag, values_from = AantalStemmen, values_fn = mean) %>%
     mutate(Turnout = Opkomst/Kiesgerechtigden)
   
   # Characteristics of politicians

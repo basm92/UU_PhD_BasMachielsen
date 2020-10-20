@@ -4,7 +4,7 @@ source("./Code/find_district.R")
 source("./Code/get_all_variables.R")
 
 #Voting law 1872
-source("./Code/Voting Data/VotingRecordsElectoralLaw1872.R")
+source("./Code/Voting Data/Lower House/Electoral Law/VotingRecordsElectoralLaw1872.R")
 
 id <- find_politician_id(kieswet1872$politician, kieswet1872$date[1])
 voting_outcomes <- left_join(kieswet1872, id, by = c("politician" = "names"))

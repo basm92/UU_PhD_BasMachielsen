@@ -6,11 +6,17 @@ source("./Code/find_district.R")
 source("./Code/get_all_variables.R")
 source("./Code/clean_districts.R")
 
+# load libs
+library(readxl)
+library(tidyverse)
+library(lubridate)
+
 #Successiewet 1878
 id <- find_politician_id(successiewet1878$politician, successiewet1878$date[1])
 voting_outcomes <- left_join(successiewet1878, id, by = c("politician" = "names"))
 distr <- find_district(voting_outcomes$polid, voting_outcomes$date[1])
 voting_outcomes <- left_join(voting_outcomes, distr, by = c("polid" = "b1-nummer"))
+
 #districts
 voting_outcomes$toelichting <- clean_districts(voting_outcomes$toelichting, voting_outcomes$date[1])
 sw1878 <- get_all_variables(voting_outcomes, voting_outcomes$date[1])
@@ -185,6 +191,24 @@ stargazer(modelinkomstenbelasting1893, modelinkomstenbelasting1914, modelsuccess
 ### all tax models together
 
 fiscal <- bind_rows(ib1893, ib1914, sw1878, sw1911, sw1916, ss1914)
+
+
+# remove this
+#fiscal %>%
+#  select(polid, politician, date, dateofdeath, W_DEFLATED) %>%
+#  group_by(polid) %>%
+#  slice_min(date) %>%
+#  distinct(politician, .keep_all = T) %>%
+#  rename(firstvote = date, w_deflated = W_DEFLATED) %>%
+#  tibble::add_column(dod_father = "", 
+#                     dod_mother = "",
+#                     source_father = "",
+#                     source_mother = "",
+ #                    wealth_father = "",
+ #                    wealth_mother = "") %>%
+ # write_csv2("./Data/instrumental_variable_wealth_par.csv")
+
+#until this
 
 all1 <- fiscal %>%
 glm(formula = as.numeric(vote) ~

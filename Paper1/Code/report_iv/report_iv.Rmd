@@ -1,0 +1,261 @@
+---
+title: "Instrumental Variable Test"
+author: "Bas Machielsen"
+date: "11/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(AER)
+library(tidyverse)
+library(lubridate)
+library(ivpack)
+library(readxl)
+library(stargazer)
+
+setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1/")
+
+taxes <- list.files("./Code/Voting Data/Lower House/Taxes") 
+sapply(paste0("./Code/Voting Data/Lower House/Taxes/", taxes), source)
+
+source("./Code/find_politician_id.R")
+source("./Code/find_district.R")
+source("./Code/get_all_variables.R")
+source("./Code/clean_districts.R")
+
+```
+
+## Introductie
+
+Een korte test van IV-estimation voor Paper 2: Wealth on Voting Behavior. Ik neem alle resultaten van **fiscale wetgeving**: daar zijn de resultaten het meest significant. 
+
+## Resultaten zonder IV
+
+Recap van de resultaten zonder IV:
+
+```{r alle resultaten, warning=FALSE, message=FALSE, echo=FALSE}
+setwd("/home/bas/Documents/git/UU_PhD_BasMachielsen/Paper1/")
+
+source("./Code/report_iv/data_all_fiscal_laws.R")
+```
+
+```{r, warning=FALSE, echo=FALSE}
+all1 <- fiscal %>%
+  glm(formula = as.numeric(vote) ~
+      log(1+wealth_timevote) +
+ #     agricul_share + 
+ #     share_aandeel + 
+ #     amount_strikes +
+ #     Percentage +
+ #     Turnout +
+ #     days_to_next_el +
+ #     age_of_vote +
+  #    RK_pct +
+      polparty, family=binomial(link = "logit"))
+
+all11 <- fiscal %>%
+  glm(formula = as.numeric(vote) ~
+        log(1+wealth_timevote) +
+             services_share + 
+           nearestcompetitormargin + 
+        amount_strikes +
+        Percentage +
+        Turnout +
+        days_to_next_el +
+        age_of_vote +
+        RK_pct +
+        polparty, family=binomial(link = "logit"))
+
+
+all2 <- fiscal %>%
+glm(formula = as.numeric(vote) ~
+      log(1+wealth_timevote):law +
+ #     agricul_share + 
+ #     share_aandeel + 
+ #     amount_strikes +
+ #     Percentage +
+ #     Turnout +
+ #     days_to_next_el +
+ #     age_of_vote +
+  #    RK_pct +
+      polparty, family=binomial(link = "logit"))
+
+all6 <- fiscal %>%
+  glm(formula = as.numeric(vote) ~
+        log(1+wealth_timevote):law +
+   #     agricul_share + 
+   #   share_aandeel + 
+        amount_strikes +
+        Percentage +
+        Turnout +
+        days_to_next_el +
+        age_of_vote +
+        RK_pct +
+        polparty, family=binomial(link = "logit"))
+
+all7 <- fiscal %>%
+  glm(formula = as.numeric(vote) ~
+        log(1+wealth_timevote):law +
+             services_share + 
+           nearestcompetitormargin + 
+        amount_strikes +
+        Percentage +
+        Turnout +
+        days_to_next_el +
+        age_of_vote +
+        RK_pct +
+        polparty, family=binomial(link = "logit"))
+```
+
+We zien dat:
+
+ - Het effect is er (significant 10% zonder controls)
+ - Wordt sterker met controls (significant 5%)
+ - Blijft significant bij het opsplitsen van effect naar wet
+ - Coefficient altijd in de hypothesized direction
+ 
+ 
+```{r, results='asis'}
+stargazer(all1, all11, all2, all6, all7,
+          font.size = "scriptsize", 
+          column.sep.width = "0pt", 
+          dep.var.labels.include = F, type = "html")
+
+```
+
+## Merge data met Parental Wealth
+
+```{r read data}
+parwealth <- read_xlsx("../../Data/instrumental_variable_est.xlsx") %>%
+  mutate(across(c(wealth_father, wealth_mother, wealth_misc), ~ as.numeric(.x)))
+```
+
+De data eerst deflaten:
+
+```{r deflation data}
+inflation <- read_xlsx("../../Data/AnalysisFile.xlsx", sheet = "InflationGDP")
+```
+
+
+Nu merge met fiscal en clean:
+
+```{r datamerge, warning = FALSE}
+fiscal2 <- left_join(fiscal, parwealth, by = c("polid" = "polid")) %>%
+  rowwise() %>%
+  mutate(date = ymd(date), 
+        max = pmax(wealth_father, wealth_mother, wealth_misc, na.rm = TRUE)
+        ) %>%
+  mutate(harnas = dateofdeath.x - date < 1800) %>%
+  mutate(max_alt = if_else(isTRUE(harnas) & is.na(max), as.numeric(wealth_timevote), max))
+```
+
+
+## Voorlopige resultaten met IV
+
+Resultaat 1: Het is een goed instrument
+
+
+Redelijk sterk verband tussen log(max) (hoogste van father, mother, misc indien aanwezig)
+
+```{r, warning = FALSE, message = FALSE}
+test <- lm(log(1+wealth_timevote) ~ log(max), data = fiscal2)
+
+summary(test)
+
+ggplot(data = fiscal2, aes(x = log(max), y = log(1+wealth_timevote))) + geom_point()
+
+test2 <- lm(as.numeric(vote) ~ log(1+wealth_timevote) + polparty, data = fiscal2)
+summary(test2)
+```
+
+
+Univariaat nog geen sterk verband (Dit is goed, want het instrument en de dep var moeten ongecorreleerd zijn): 
+```{r, warning = FALSE, message = FALSE}
+test3 <- lm(as.numeric(vote) ~ log(1+max) + polparty, data = fiscal2)
+summary(test3)
+```
+
+Dit zijn een paar simpele IV-regressies. Ik gebruik twee variaties:
+
+ - max: $ \max(WoD_{father}, WoD_{mother}, WoD_{misc}) $
+ - max_alt: max if available, wealth_timevote if (not available & harnas), na otherwise
+ 
+ 
+```{r, warning = FALSE, message = FALSE}
+
+test2 <- ivreg(as.numeric(vote) ~ log(1+wealth_timevote) + polparty | polparty + log(1+max), data = fiscal2)
+
+summary(test2)
+
+
+test3 <- ivreg(as.numeric(vote) ~ log(1+wealth_timevote) +
+        polparty | log(max) + 
+        polparty, data = fiscal2)
+
+summary(test3)
+
+## Meer controlevariabelen:
+test4 <- ivreg(as.numeric(vote) ~ log(1+wealth_timevote) + 
+           nearestcompetitormargin + 
+        age_of_vote + 
+        RK_pct +
+        polparty | log(max) + 
+           nearestcompetitormargin + 
+        age_of_vote +
+        RK_pct +
+        polparty, data = fiscal2)
+
+summary(test4)
+
+```
+
+
+```{r, warning = FALSE, message = FALSE}
+
+test5 <- ivreg(as.numeric(vote) ~ log(1+wealth_timevote) +
+        polparty | log(max_alt) + 
+        polparty, data = fiscal2)
+
+summary(test5)
+
+test6 <- ivreg(as.numeric(vote) ~ log(1+wealth_timevote) + 
+           nearestcompetitormargin + 
+        age_of_vote + 
+        RK_pct +
+        polparty | log(max_alt) + 
+           nearestcompetitormargin + 
+        age_of_vote +
+        RK_pct +
+        polparty, data = fiscal2)
+
+summary(test6)
+
+
+test7 <- ivreg(as.numeric(vote) ~ log(1+wealth_timevote) +
+             services_share + 
+           nearestcompetitormargin + 
+        amount_strikes +
+        Percentage +
+        Turnout +
+        days_to_next_el +
+        age_of_vote +
+        RK_pct +
+        polparty | log(max_alt) +
+             services_share + 
+           nearestcompetitormargin + 
+        amount_strikes +
+        Percentage +
+        Turnout +
+        days_to_next_el +
+        age_of_vote +
+        RK_pct +
+        polparty, data = fiscal2)
+
+summary(test7)
+```
+
+## Resultaat 2
+
+Het instrument lijkt stabiele point estimates te geven in de juiste richting, maar nog te kleine sample om significantieniveaus te halen.. 

@@ -1,0 +1,69 @@
+---
+title: "Available Fiscal Sources"
+author: "Bas Machielsen"
+date: "11/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+
+## De registers van patentplichtigen, 1805-1893
+
+
+P.M.M. Klep, A. Lansink en W.F.M. Terwisscha van Scheltinga, 'De registers van patentplichtigen, 1805-1893', in: Broncommentaren, I-IV ('s-Gravenhage 1987) 15-40.
+
+http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_II-015_040.pdf
+
+> De registers van  patentplichtigen  en de hiermee samenhangende  bronnen  kunnen  op  vele,  maar  helaas  lang  niet  alle  gemeente-archieven  worden   aangetroffen. 
+
+Documenten waarop een bedrag staat: Aanslag-biljet(ten)
+
+## De registers met de uitkomsten  van  de herzieningen  van de  grondbelasting,  1873-1904
+
+http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_3_145-175.pdf
+
+- Per perceel
+- Tot 1904 Naam een woonplaats van de eigenaar
+
+
+## (Kohieren van de) Gemeentelijke hoofdelijke omslag
+
+http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_I-006_014.pdf 
+
+- Zuid-Holland: 3.06.25 Inventaris van de archieven van de instanties belast met de schattingen voor de Grondbelasting, 1873-1958
+
+- Zeeland: https://www.zeeuwsarchief.nl/zoekgids/gemeentelijke-hoofdelijke-omslag/ 
+
+- Overijssel: https://historischcentrumoverijssel.nl/archieven/?mivast=20&miadt=20&mizig=0&miview=lst&milang=nl&micols=1&mizk_alle=kohieren%20hoofdelijke%20omslag 
+
+- Utrecht: https://hetutrechtsarchief.nl/onderzoek/resultaten/archieven?mivast=39&mizig=210&miadt=39&miaet=1&micode=1007-2&minr=1305602&miview=inv2
+
+
+## De  lijsten  van  kiezers  ter  benoeming  van   afgevaardigden   voor  de  Tweede  Kamer  der  Staten-Generaal,  de  Provinciale  Staten  en  de  Gemeenteraad,   1851-1886
+
+Dit wordt gebruikt in electoraat en elite! 
+
+http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_VI-005_014.pdf
+
+
+## De lijsten van verkiesbaren voor de Eerste Kamer der Staten-Generaal 1848-1917
+
+http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_1-119_168.pdf
+
+Tot 1893 bedragen!
+
+
+## Mijn indruk
+
+Makkelijkste bron (naast de Memories). Kiezerlijsten voor eerste- en tweede kamer. Nadeel van kohieren is dat ze (a) verspreid zijn over gemeenten en in sommige gevallen niet in de provinciale archieven aanwezig zijn, en (b) ze zijn georganiseerd per wijk, waardoor het moeilijk is om de aanslag van een bepaald individu te vinden. 
+
+De kiezerlijsten daarentegen georganiseerd per gemeente. 
+
+## Combinatie met de Memories
+
+Volgens mij is het of-of: er is geen manier om belastingbedragen (flows) te converteren in stocks zonder vergaande assumpties. 

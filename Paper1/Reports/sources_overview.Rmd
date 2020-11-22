@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
+Een kort overzicht van bronnen die kunnen helpen bij het achterhalen van inkomens of vermogens van individuen in de 19e en begin 20e eeuw. 
 
 ## De registers van patentplichtigen, 1805-1893
 
@@ -23,19 +24,45 @@ http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_I
 
 Documenten waarop een bedrag staat: Aanslag-biljet(ten)
 
+Wat staat erop: betaalde patentbelasting, klasse en tarief 
+
+  - Klasse: "lucrativiteit" van het beroep (verondersteld door de wetgever)
+  - Tarief: Er zijn twee tarieven: A en B. Verschilde soms voor beroepen van dezelfde klasse omdat gemeenten groter waren (groter betekende tarief B, een hogere belasting). 
+
+Waarop werd patentbelasting geheven? "Economische activiteit"
+
+> Reconstructie  van  inkomenstendensen  bij  bepaalde  groepen  patentplichtigen.  Hoewel  de  verhouding  tussen  patentaanslag  en  vermoedelijk  besteedbaar  inkomen  voor  ieder  beroep  en  wellicht  ook  nog  voor  iedere  inkomensklasse  binnen  elk begroep  uiteenliep,  mag men aannemen  dat over een zekere periode  deze verhouding min  of meer  constant  bleef,  zodat  uitspraken  over  inkomenstendensen   mogelijk   zijn.
+
+Veel uitzonderingen, waaronder "geestelijke personen" en "advocaten". Dit kan problematisch zijn voor politici. 
+
 ## De registers met de uitkomsten  van  de herzieningen  van de  grondbelasting,  1873-1904
 
 http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_3_145-175.pdf
 
-- Per perceel
+- De unit of analysis van dit archief is een perceel, niet een persoon.
+- Per gemeente werd een overzicht gemaakt van alle percelen, met daarbij een "belastbare opbrengen na herschatting"
 - Tot 1904 Naam een woonplaats van de eigenaar
+- Het is dus niet mogelijk om per eigenaar iets op te zoeken. 
+- Vier jaren beschikbaar, als gevolg van verschillende herzieningen: 1873, 1879, 1897
 
+Bij de herzieningen van 1904 werd de naam van de eigenaar weggelaten. 
+
+In ZH [is dit](https://www.nationaalarchief.nl/onderzoeken/archief/3.06.25?query=De%20registers%20met%20de%20uitkomsten%20van%20de%20herzieningen%20van%20de%20grondbelasting&search-type=description) de archieftoegang. Niets is nog gedigitaliseerd. 
 
 ## (Kohieren van de) Gemeentelijke hoofdelijke omslag
 
 http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_I-006_014.pdf 
 
-- Zuid-Holland: 3.06.25 Inventaris van de archieven van de instanties belast met de schattingen voor de Grondbelasting, 1873-1958
+ - Aanslagen voor de gemeentebelasting op basis van:
+  - inkomens uit onroerend goed, roerend goed, en arbeid
+  
+Te vinden in gemeentelijke archieven:
+
+  - gebaseerd op **personen** die "hun hoofdverblijf in de gemeente hielden."
+  
+Enkele toegangen (niet gedigitaliseerd):
+
+- Den Haag: https://haagsgemeentearchief.nl/archieven-mais/overzicht?mivast=59&mizig=210&miadt=59&micode=0333-01&milang=nl&miview=inv2#inv3t1 
 
 - Zeeland: https://www.zeeuwsarchief.nl/zoekgids/gemeentelijke-hoofdelijke-omslag/ 
 
@@ -46,23 +73,51 @@ http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_I
 
 ## De  lijsten  van  kiezers  ter  benoeming  van   afgevaardigden   voor  de  Tweede  Kamer  der  Staten-Generaal,  de  Provinciale  Staten  en  de  Gemeenteraad,   1851-1886
 
-Dit wordt gebruikt in electoraat en elite! 
+Link: http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_VI-005_014.pdf
 
-http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_VI-005_014.pdf
+Deze lijsten worden gebruikt in _Electoraat & Elite_. 
 
+Belastingaanslagen in 3 categorieen: grondbelasting, patentrecht, personeel (en het totaal). Opgemaakt voor elke tweede kamerverkiezing. De minimumhoogte voor de census verschilt sterk per gemeente (en door de tijd). 
+
+- Wat voorbeelden:
+  
+  - Groningen: https://www.groningerarchieven.nl/archieven?q=rodeweeshuisstraat+&offset=0&mivast=5&mizig=210&miadt=5&miaet=1&micode=1399&minr=1112600&miview=inv2&milang=nl
+  
+  - Enschede: https://enschedepubliek.hosting.deventit.net/detail.php?nav_id=2-1&id=967097&index=6
+  
+  - Arnhem: https://www.geldersarchief.nl/bronnen/archieven?mivast=37&mizig=210&miadt=37&micode=2193&miview=inv2&milang=nl#inv3t2 
+  
+  
+Over het algemeen erg lastig te vinden. Meestal via google, handmatig via inventarissen. Benaming niet uniform. Niet gedigitaliseerd. 
+
+- Vaak is de zoekterm "Gemeentebestuur". In die inventarissen is het vaak handmatig zoeken. 
+  
 
 ## De lijsten van verkiesbaren voor de Eerste Kamer der Staten-Generaal 1848-1917
 
 http://resources.huygens.knaw.nl/pdf/Broncommentaren/voorlopig/Broncommentaren_1-119_168.pdf
 
-Tot 1893 bedragen!
+Deze behoeven weinig toelichting, zijn in tegenstelling tot de lijsten voor de Tweede Kamer te vinden in de _Staatscourant_. 
+
+- Ik probeer de Staatscouranten te vinden, maar het lijkt niet te kunnen via www.statengeneraaldigitaal.nl. 
+
+- Via Delpher lukt het wel, maar hij pakt maar een klein (55) aantal kranten:
+
+https://www.delpher.nl/nl/kranten/results?query=%28Verkiesbaren+Eerste+Kamer%29&facets%5Bpapertitle%5D%5B0%5D=Nederlandsche+staatscourant&page=1&cql%5B0%5D=%28date+_gte_+%2201-01-1850%22%29&cql%5B1%5D=%28date+_lte_+%2201-01-1900%22%29&coll=ddd&redirect=true 
 
 
 ## Mijn indruk
 
-Makkelijkste bron (naast de Memories). Kiezerlijsten voor eerste- en tweede kamer. Nadeel van kohieren is dat ze (a) verspreid zijn over gemeenten en in sommige gevallen niet in de provinciale archieven aanwezig zijn, en (b) ze zijn georganiseerd per wijk, waardoor het moeilijk is om de aanslag van een bepaald individu te vinden. 
+Makkelijkste bron (naast de Memories) zijn Kiezerlijsten voor eerste- en tweede kamer (in die volgorde). 
 
-De kiezerlijsten daarentegen georganiseerd per gemeente. 
+In die lijsten zou ik makkelijk kunnen vinden of ouders erin staan (1) of niet (0). Nadeel is dat het meetniveau waarvan waarschijnlijk gebruik gemaakt moet worden. 
+
+Nadeel van lijsten voor de tweede kamerverkiezingen zijn dat ze over gemeenten verspreid liggen, niet gedigitaliseerd zijn en waarschijnlijk niet snel te verzamelen zijn. 
+
+Nadeel van kohieren is dat ze (a) verspreid zijn over gemeenten en in sommige gevallen niet in de provinciale archieven aanwezig zijn, en (b) ze zijn georganiseerd per wijk, waardoor het moeilijk is om de aanslag van een bepaald individu te vinden. De kiezerlijsten daarentegen georganiseerd per gemeente. 
+
+Onroerend goed heeft veel voor de hand liggende nadelen. 
+
 
 ## Combinatie met de Memories
 
